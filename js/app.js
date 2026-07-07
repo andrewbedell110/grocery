@@ -687,12 +687,24 @@ const Settings = {
 
   loadSelectedStore() {
     const storeText = document.getElementById('selected-store-text');
+    const searchForm = document.getElementById('store-search-form');
+    const changeBtn = document.getElementById('store-change-btn');
     const savedName = localStorage.getItem('kroger_store_name');
     if (savedName) {
       storeText.textContent = savedName;
+      searchForm.classList.add('hidden');
+      changeBtn.classList.remove('hidden');
     } else {
       storeText.textContent = 'No store selected';
+      searchForm.classList.remove('hidden');
+      changeBtn.classList.add('hidden');
     }
+  },
+
+  showStoreSearch() {
+    document.getElementById('store-search-form').classList.remove('hidden');
+    document.getElementById('store-change-btn').classList.add('hidden');
+    document.getElementById('store-zip-input').focus();
   },
 
   async searchStores() {
@@ -728,11 +740,13 @@ const Settings = {
   },
 
   selectStore(locationId, btn) {
-    const storeName = btn.querySelector('.text-kale-deep').textContent + ' — ' + btn.querySelector('.text-on-surface-variant').textContent;
+    const storeName = btn.querySelector('.text-kale-deep').textContent + ' \u2014 ' + btn.querySelector('.text-on-surface-variant').textContent;
     localStorage.setItem('kroger_location_id', locationId);
     localStorage.setItem('kroger_store_name', storeName);
     document.getElementById('selected-store-text').textContent = storeName;
     document.getElementById('store-results').classList.add('hidden');
+    document.getElementById('store-search-form').classList.add('hidden');
+    document.getElementById('store-change-btn').classList.remove('hidden');
     App.showToast('Store selected!', 'success');
   },
 
