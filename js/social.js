@@ -163,17 +163,18 @@ const Social = {
     const div = document.createElement('div');
     div.className = 'bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5';
     div.innerHTML = `
-      <div class="flex gap-3 mb-3">
+      <div class="flex gap-3 mb-3 cursor-pointer group" onclick="RecipeModal.open('${recipe.id}', false)">
         ${imgSrc
           ? `<img class="w-20 h-20 rounded-lg object-cover flex-shrink-0 bg-surface-container-high" src="${escapeHtml(imgSrc)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'w-20 h-20 rounded-lg flex-shrink-0 bg-surface-container-high flex items-center justify-center text-2xl\\'>🍽</div>'">`
           : `<div class="w-20 h-20 rounded-lg flex-shrink-0 bg-surface-container-high flex items-center justify-center text-2xl">🍽</div>`}
         <div class="flex-1 min-w-0">
-          <h4 class="font-semibold text-kale-deep truncate">${escapeHtml(recipe.title)}</h4>
+          <h4 class="font-semibold text-kale-deep truncate group-hover:text-primary transition-colors">${escapeHtml(recipe.title)}</h4>
           <p class="text-xs text-on-surface-variant">${recipe.servings ? recipe.servings + ' servings' : ''}</p>
           <div class="flex flex-wrap gap-1 mt-2">
             ${catNames.map(n => `<span class="bg-herb-light text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">${escapeHtml(n)}</span>`).join('')}
           </div>
         </div>
+        <span class="material-symbols-outlined text-kale-deep/20 self-center">chevron_right</span>
       </div>
       <div class="flex gap-2">
         <button class="flex-1 py-2 bg-herb-light text-primary font-semibold text-xs rounded-full active:scale-95 transition-transform flex items-center justify-center gap-1 like-btn" onclick="Social.likeRecipe('${recipe.id}', this)">
