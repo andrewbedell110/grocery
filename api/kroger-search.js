@@ -6,14 +6,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { items } = req.body;
+  const { items, locationId: userLocationId } = req.body;
   if (!items?.length) {
     return res.status(400).json({ error: 'No items provided' });
   }
 
   const clientId = process.env.KROGER_CLIENT_ID;
   const clientSecret = process.env.KROGER_CLIENT_SECRET;
-  const locationId = process.env.KROGER_LOCATION_ID; // Smith's store location
+  const locationId = userLocationId || process.env.KROGER_LOCATION_ID;
 
   if (!clientId || !clientSecret) {
     return res.status(500).json({ error: 'Kroger API not configured' });

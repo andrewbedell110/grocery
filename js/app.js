@@ -589,8 +589,9 @@ const Settings = {
     // Visibility toggle
     this.updateVisibilityUI(profile.is_public);
 
-    // Check Kroger connection status
+    // Check Kroger connection status + load selected store
     this.checkKrogerStatus();
+    this.loadSelectedStore();
 
     // Handle OAuth redirect
     const params = new URLSearchParams(window.location.search);
@@ -682,6 +683,57 @@ const Settings = {
     } catch (err) {
       App.showToast('Error: ' + err.message, 'error');
     }
+  },
+
+  loadSelectedStore() {
+    const storeText = document.getElementById('selected-store-text');
+    const savedName = localStorage.getItem('kroger_store_name');
+    if (savedName) {
+      storeText.textContent = savedName;
+    } else {
+      storeText.textContent = 'No store selected';
+    }
+  },
+
+  async searchStores() {
+    const zip = document.getElementById('store-zip-input').value.trim();
+    if (!zip || zip.length < 5) {
+      App.showToast('Enter a 5-digit zip code', 'info');
+      return;
+    }
+
+    const resultsEl = document.getElementById('store-results');
+    resultsEl.classList.remove('hidden');
+    resultsEl.innerHTML = '<p class="text-sm text-on-surface-variant text-center py-2">Searching...</p>';
+
+    try {
+      const res = await fetch(`/api/kroger-locations?zip=${encodeURIComponent(zip)}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      if (!data.locations?.length) {
+        resultsEl.innerHTML = '<p class="text-sm text-on-surface-variant text-center py-2">No stores found near that zip code.</p>';
+        return;
+      }
+
+      resultsEl.innerHTML = data.locations.map(loc => `
+        <button class="w-full text-left bg-parchment-bg rounded-lg p-3 hover:bg-herb-light/30 transition-colors active:scale-[0.98]" onclick="Settings.selectStore('${escapeHtml(loc.locationId)}', this)">
+          <p class="text-sm font-semibold text-kale-deep">${escapeHtml(loc.name || "Smith's")}</p>
+          <p class="text-xs text-on-surface-variant">${escapeHtml(loc.address || '')}${loc.city ? ', ' + escapeHtml(loc.city) : ''}${loc.state ? ' ' + escapeHtml(loc.state) : ''} ${escapeHtml(loc.zipCode || '')}</p>
+        </button>
+      `).join('');
+    } catch (err) {
+      resultsEl.innerHTML = `<p class="text-sm text-berry-danger text-center py-2">Error: ${escapeHtml(err.message)}</p>`;
+    }
+  },
+
+  selectStore(locationId, btn) {
+    const storeName = btn.querySelector('.text-kale-deep').textContent + ' — ' + btn.querySelector('.text-on-surface-variant').textContent;
+    localStorage.setItem('kroger_location_id', locationId);
+    localStorage.setItem('kroger_store_name', storeName);
+    document.getElementById('selected-store-text').textContent = storeName;
+    document.getElementById('store-results').classList.add('hidden');
+    App.showToast('Store selected!', 'success');
   },
 
   changeAvatar() {

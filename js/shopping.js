@@ -24,10 +24,11 @@ const Shopping = {
         unit: item.unit
       }));
 
+      const locationId = localStorage.getItem('kroger_location_id') || null;
       const res = await fetch('/api/kroger-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items })
+        body: JSON.stringify({ items, locationId })
       });
 
       const data = await res.json();
