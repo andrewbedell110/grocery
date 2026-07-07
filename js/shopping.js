@@ -118,7 +118,21 @@ const Shopping = {
     return data.accessToken;
   },
 
+  _cartDebounce: false,
+
   async confirmAddToCart(matches) {
+    if (this._cartDebounce) return;
+    this._cartDebounce = true;
+
+    const cartBtn = document.querySelector('[onclick*="confirmAddToCart"]') ||
+      document.querySelector('.btn-primary:last-child');
+
+    // Animate the button
+    if (cartBtn) {
+      cartBtn.classList.add('animate-pulse-btn');
+      cartBtn.textContent = 'Opening Smith\'s...';
+    }
+
     try {
       const krogerAccessToken = await this.getKrogerToken();
 
@@ -128,6 +142,7 @@ const Shopping = {
 
       if (!productIds.length) {
         App.showToast('No products to add', 'info');
+        this._cartDebounce = false;
         return;
       }
 
@@ -140,8 +155,23 @@ const Shopping = {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      App.showToast(`${productIds.length} items added to your Smith's cart!`, 'success');
+      App.showToast(`${productIds.length} items added! Opening Smith's...`, 'success');
+
+      // Delay 1s then open Smith's cart
+      setTimeout(() => {
+        window.open('https://www.smithsfoodanddrug.com/cart', '_blank');
+        this._cartDebounce = false;
+        if (cartBtn) {
+          cartBtn.classList.remove('animate-pulse-btn');
+          cartBtn.textContent = "Add All to Smith's Cart";
+        }
+      }, 1000);
     } catch (err) {
+      this._cartDebounce = false;
+      if (cartBtn) {
+        cartBtn.classList.remove('animate-pulse-btn');
+        cartBtn.textContent = "Add All to Smith's Cart";
+      }
       if (err.message !== 'Kroger account not connected') {
         App.showToast('Error adding to cart: ' + err.message, 'error');
       }

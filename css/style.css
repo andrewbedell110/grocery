@@ -88,6 +88,25 @@
   backdrop-filter: blur(8px);
 }
 
+/* ---- Button tap ripple ---- */
+button, [role="button"], .cursor-pointer {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
+}
+button:active:not(:disabled), [role="button"]:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+/* ---- Smith's pulse animation ---- */
+@keyframes pulseBtn {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 112, 67, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 0 8px rgba(255, 112, 67, 0); }
+}
+.animate-pulse-btn {
+  animation: pulseBtn 0.8s ease infinite;
+}
+
 /* ---- Tag search animation ---- */
 .tag-search-wrap {
   display: flex;

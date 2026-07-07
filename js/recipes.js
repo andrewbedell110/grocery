@@ -727,7 +727,8 @@ const RecipeModal = {
     const r = this.currentRecipe;
     const text = this._getExportText();
     const subject = `Recipe: ${r?.title || 'My Recipe'}`;
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`);
+    // Use mailto: to open native email app (Gmail on mobile)
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
     document.getElementById('modal-export-menu')?.classList.add('hidden');
   },
 

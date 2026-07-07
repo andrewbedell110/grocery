@@ -67,14 +67,8 @@ const Plan = {
 
   openPanel(id) {
     this.closePanels();
-    if (id === 'saved-recipes-panel') {
-      // Saved recipes replaces the browse-saved card inline within the grid
-      const browseCard = document.getElementById('browse-saved-card');
-      if (browseCard) browseCard.classList.add('hidden');
-    } else {
-      // All other panels hide the meal-options grid
-      document.querySelector('.meal-options')?.classList.add('hidden');
-    }
+    // All panels hide the meal-options grid
+    document.querySelector('.meal-options')?.classList.add('hidden');
     document.getElementById(id).classList.remove('hidden');
   },
 

@@ -266,75 +266,27 @@ const Meals = {
 // ============================================================
 
 const MyRecipes = {
-  currentTag: null,
-
   async load() {
     await Recipes.loadCategories();
-    this.showTags();
-  },
-
-  showTags() {
-    this.currentTag = null;
-    const tagsContainer = document.getElementById('myrecipes-tags');
+    const filters = document.getElementById('myrecipes-filters');
     const listContainer = document.getElementById('myrecipes-list');
-    const backBtn = document.getElementById('myrecipes-tag-back');
 
-    backBtn.classList.add('hidden');
-    listContainer.innerHTML = '';
-
-    // Add "All Recipes" card
-    const allCard = document.createElement('div');
-    allCard.className = 'bg-cream-surface rounded-xl p-5 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98] flex items-center gap-3';
-    allCard.innerHTML = `
-      <div class="bg-carrot-accent/10 p-3 rounded-full text-carrot-accent">
-        <span class="material-symbols-outlined icon-filled">restaurant</span>
-      </div>
-      <div>
-        <h4 class="font-semibold text-kale-deep">All Recipes</h4>
-        <p class="text-xs text-on-surface-variant">View every recipe</p>
-      </div>
-      <span class="material-symbols-outlined text-kale-deep/20 ml-auto">chevron_right</span>
-    `;
-    allCard.addEventListener('click', () => this.showRecipesForTag(null, 'All Recipes'));
-
-    tagsContainer.innerHTML = '';
-    tagsContainer.appendChild(allCard);
-
-    Recipes.categories.forEach(cat => {
-      const card = document.createElement('div');
-      card.className = 'bg-cream-surface rounded-xl p-5 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98] flex items-center gap-3';
-      card.innerHTML = `
-        <div class="bg-herb-light p-3 rounded-full text-primary">
-          <span class="material-symbols-outlined icon-filled">label</span>
-        </div>
-        <div>
-          <h4 class="font-semibold text-kale-deep">${escapeHtml(cat.name)}</h4>
-        </div>
-        <span class="material-symbols-outlined text-kale-deep/20 ml-auto">chevron_right</span>
-      `;
-      card.addEventListener('click', () => this.showRecipesForTag(cat.id, cat.name));
-      tagsContainer.appendChild(card);
+    Recipes.renderCategoryFilters(filters, async (catId) => {
+      const recipes = await Recipes.loadRecipes(catId);
+      this.render(listContainer, recipes);
     });
+
+    const recipes = await Recipes.loadRecipes();
+    this.render(listContainer, recipes);
   },
 
-  async showRecipesForTag(catId, catName) {
-    this.currentTag = catId;
-    const tagsContainer = document.getElementById('myrecipes-tags');
-    const listContainer = document.getElementById('myrecipes-list');
-    const backBtn = document.getElementById('myrecipes-tag-back');
-
-    tagsContainer.innerHTML = `<div class="col-span-2"><h3 class="font-display text-lg font-semibold text-kale-deep">${escapeHtml(catName)}</h3></div>`;
-    backBtn.classList.remove('hidden');
-
-    const recipes = await Recipes.loadRecipes(catId);
-    listContainer.innerHTML = '';
-
+  render(container, recipes) {
+    container.innerHTML = '';
     if (!recipes.length) {
-      listContainer.innerHTML = '<div class="text-center py-8 text-on-surface-variant"><p class="text-sm">No recipes in this category yet.</p></div>';
+      container.innerHTML = '<div class="text-center py-8 text-on-surface-variant"><p class="text-sm">No recipes yet. Add some!</p></div>';
       return;
     }
-
-    recipes.forEach(r => listContainer.appendChild(Recipes.renderCard(r, { showDelete: true })));
+    recipes.forEach(r => container.appendChild(Recipes.renderCard(r, { showDelete: true })));
   }
 };
 
