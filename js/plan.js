@@ -292,8 +292,8 @@ const Plan = {
       const full = await this._saveAIRecipe(btn);
       this.closePanels();
       App.showToast('Recipe saved!', 'success');
-      RecipeModal.open(full.id, false);
-      setTimeout(() => RecipeModal.openEditForm(), 300);
+      await RecipeModal.open(full.id, false);
+      RecipeModal.openEditForm();
     } catch (err) {
       App.showToast('Error saving recipe: ' + err.message, 'error');
     }
@@ -818,7 +818,7 @@ document.getElementById('upload-recipe-form')?.addEventListener('submit', async 
       App.showToast('Recipe saved!', 'success');
       e.target.reset();
       Plan.closePanels();
-      RecipeModal.open(recipe.id, false);
+      await RecipeModal.open(recipe.id, false);
       RecipeModal.openEditForm();
       return;
     } else {
