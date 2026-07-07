@@ -43,6 +43,10 @@ const App = {
         btn.classList.add('bg-primary-container', 'text-on-primary-container', 'rounded-full');
         btn.classList.remove('text-on-surface-variant');
         btn.querySelector('.nav-icon')?.classList.add('icon-filled');
+        // Bounce animation
+        btn.classList.remove('nav-bounce');
+        void btn.offsetWidth; // force reflow to restart animation
+        btn.classList.add('nav-bounce');
       } else {
         btn.classList.remove('bg-primary-container', 'text-on-primary-container', 'rounded-full');
         btn.classList.add('text-on-surface-variant');

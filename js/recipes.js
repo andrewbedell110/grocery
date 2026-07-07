@@ -241,6 +241,18 @@ const Recipes = {
       });
       container.appendChild(btn);
     });
+
+    // Edit tags button at the end of the row
+    const editBtn = document.createElement('button');
+    editBtn.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-herb-light/60 text-primary flex items-center justify-center hover:bg-herb-light transition-colors';
+    editBtn.innerHTML = '<span class="material-symbols-outlined text-lg">edit</span>';
+    editBtn.title = 'Edit Tags';
+    editBtn.addEventListener('click', () => {
+      editBtn.classList.add('animate-spin-once');
+      setTimeout(() => editBtn.classList.remove('animate-spin-once'), 400);
+      TagEditor.open();
+    });
+    container.appendChild(editBtn);
   },
 
   renderUploadCategories(container) {
@@ -785,10 +797,13 @@ const TagEditor = {
     const list = document.getElementById('tag-editor-list');
     list.innerHTML = Recipes.categories.map(cat => `
       <div class="flex items-center justify-between bg-cream-surface rounded-lg p-3 border border-kale-deep/5">
-        <span class="text-sm font-semibold text-kale-deep">${escapeHtml(cat.name)}</span>
-        <button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-berry-danger/10 hover:text-berry-danger transition-colors" onclick="TagEditor.deleteTag('${cat.id}')">
-          <span class="material-symbols-outlined text-lg">delete</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-kale-deep">${escapeHtml(cat.name)}</span>
+          ${!cat.household_id ? '<span class="text-[9px] text-on-surface-variant bg-surface-container-high px-1.5 py-0.5 rounded">default</span>' : ''}
+        </div>
+        ${cat.household_id
+          ? `<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-berry-danger/10 hover:text-berry-danger transition-colors" onclick="TagEditor.deleteTag('${cat.id}')"><span class="material-symbols-outlined text-lg">delete</span></button>`
+          : '<span class="w-8 h-8 flex items-center justify-center text-on-surface-variant/30"><span class="material-symbols-outlined text-lg">lock</span></span>'}
       </div>
     `).join('');
   },
@@ -801,7 +816,9 @@ const TagEditor = {
     try {
       const sb = getSupabase();
       const maxOrder = Recipes.categories.reduce((max, c) => Math.max(max, c.sort_order || 0), 0);
-      const { data, error } = await sb.from('categories').insert({ name, sort_order: maxOrder + 1 }).select().single();
+      const profile = App.profile || await Auth.getProfile();
+      const householdId = profile?.household_id || null;
+      const { data, error } = await sb.from('categories').insert({ name, sort_order: maxOrder + 1, household_id: householdId }).select().single();
       if (error) throw error;
       Recipes.categories.push(data);
       input.value = '';
