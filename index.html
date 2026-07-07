@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#FDFCF0">
+  <title>MealMap</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="apple-touch-icon" href="/icons/icon.svg">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0f5238",
+            "kale-deep": "#1B4332",
+            "primary-container": "#2d6a4f",
+            "on-primary-container": "#a8e7c5",
+            "carrot-accent": "#FF7043",
+            "herb-light": "#D8F3DC",
+            "parchment-bg": "#FDFCF0",
+            "cream-surface": "#FAF9F0",
+            "surface-container": "#efeee3",
+            "surface-container-low": "#f5f4e8",
+            "surface-container-high": "#e9e9dd",
+            "on-surface": "#1b1c15",
+            "on-surface-variant": "#404943",
+            "outline": "#707973",
+            "outline-variant": "#bfc9c1",
+            "berry-danger": "#D62828",
+            "error-container": "#ffdad6",
+          },
+          fontFamily: {
+            "display": ["Literata", "serif"],
+            "body": ["Plus Jakarta Sans", "sans-serif"],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body { background-color: #FDFCF0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .icon-filled { font-variation-settings: 'FILL' 1; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-on-surface overflow-x-hidden">
+
+<div id="app" class="min-h-screen flex flex-col">
+
+  <!-- ====== LOGIN ====== -->
+  <div id="page-login" class="page active min-h-screen items-center justify-start">
+    <div class="relative w-full h-[380px] overflow-hidden">
+      <img class="w-full h-full object-cover image-mask" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB6NW9ssPgG2lYZlqbMwfcfHlRxqf6mK4j-lz_-uyfPxzjQJZx1clXC6HS2rpxGwvDsuG38hhkOAkvR5BTmKbfy5mAgsaefYG8MLxe5udk8GuharqpXLKATxsEaH7EKVER6yHVqhzMBY-kxqq3I8GMMy-DttB7D5sdb1JCcigLjpBmjV5EnxE8GLDw7IB2jUGfQkrh32Hv4kNVYfgRV9-u_QMX0u6-SCGDdU_Rb_MqTTzTsi6YxJ2jlj_ze0LA-A5sGUjE6L2hDGaC" alt="">
+      <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-parchment-bg"></div>
+      <div class="absolute bottom-12 left-0 right-0 text-center fade-in">
+        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      </div>
+    </div>
+    <main class="w-full max-w-md px-5 -mt-8 relative z-10 fade-in pb-8" style="animation-delay:0.2s;">
+      <div class="bg-cream-surface rounded-xl p-6 shadow-[0_16px_48px_rgba(45,106,79,0.08)]">
+        <div class="flex p-1 bg-surface-container-low rounded-lg mb-6" id="auth-tabs">
+          <button class="flex-1 py-2 text-sm font-semibold rounded-md bg-white shadow-sm text-primary transition-all" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+          <button class="flex-1 py-2 text-sm font-semibold text-on-surface-variant transition-all" id="registerTab" onclick="switchAuthTab('register')">Get Started</button>
+        </div>
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-4">
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Email Address</label>
+            <input type="email" id="login-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="chef@mealmap.com" required autocomplete="email">
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Password</label>
+            <input type="password" id="login-password" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <button type="submit" id="auth-submit-btn" class="w-full bg-carrot-accent text-white font-semibold text-sm py-4 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+            Sign In <span class="material-symbols-outlined text-lg">arrow_forward</span>
+          </button>
+        </form>
+        <!-- Signup Form (hidden by default) -->
+        <form id="signup-form" class="space-y-4 hidden">
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Email Address</label>
+            <input type="email" id="signup-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="chef@mealmap.com" required autocomplete="email">
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Password</label>
+            <input type="password" id="signup-password" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Household Name</label>
+            <input type="text" id="signup-household" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="e.g. The Smiths" required>
+          </div>
+          <button type="submit" class="w-full bg-carrot-accent text-white font-semibold text-sm py-4 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+            Create Account <span class="material-symbols-outlined text-lg">person_add</span>
+          </button>
+        </form>
+        <div class="mt-8 pt-6 border-t border-outline-variant/30 text-center space-y-4" id="join-household-section">
+          <p class="text-xs font-bold text-outline uppercase tracking-widest">Or join your team</p>
+          <div class="flex gap-2">
+            <input type="text" id="join-code" class="flex-1 bg-white border border-kale-deep/10 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" placeholder="Invite code" maxlength="8">
+            <button onclick="Settings.joinHousehold()" class="px-4 py-3 bg-primary text-white rounded-lg text-sm font-semibold active:scale-95 transition-transform">Join</button>
+          </div>
+        </div>
+      </div>
+      <p class="mt-6 text-center text-sm text-outline pb-8">By continuing, you agree to our Terms of Service.</p>
+    </main>
+  </div>
+
+  <!-- ====== SIGNUP (hidden - handled via tab toggle on login page) ====== -->
+  <div id="page-signup" class="page"></div>
+
+  <!-- ====== THIS WEEK'S MEALS ====== -->
+  <div id="page-meals" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-4xl mx-auto w-full">
+      <section class="mb-8 flex justify-between items-end">
+        <div>
+          <h2 class="font-display text-2xl font-semibold text-kale-deep">This Week</h2>
+          <p class="text-base text-on-surface-variant">Your curated meals, ready to cook.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="refresh-week-btn" class="text-xs font-semibold text-primary bg-herb-light px-3 py-1.5 rounded-full hidden active:scale-95 transition-transform" onclick="Meals.refresh()">Refresh</button>
+          <button id="clear-week-btn" class="text-xs font-semibold text-berry-danger bg-error-container px-3 py-1.5 rounded-full hidden active:scale-95 transition-transform" onclick="Meals.clearWeek()">Clear</button>
+          <button id="edit-week-btn" class="text-xs font-semibold text-carrot-accent bg-carrot-accent/10 px-3 py-1.5 rounded-full hidden active:scale-95 transition-transform" onclick="Meals.toggleEdit()">Edit</button>
+        </div>
+      </section>
+      <div id="meals-list" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div class="empty-state md:col-span-12 text-center py-16 text-on-surface-variant" id="meals-empty">
+          <span class="material-symbols-outlined text-6xl opacity-30 mb-4 block">restaurant</span>
+          <p class="text-base mb-4">No meals planned yet this week.</p>
+          <button class="bg-carrot-accent text-white font-semibold text-sm py-3 px-6 rounded-full shadow-lg active:scale-95 transition-transform" onclick="App.navigate('plan')">Start Planning</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== MY RECIPES ====== -->
+  <div id="page-myrecipes" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <button class="w-10 h-10 bg-carrot-accent text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform" onclick="Plan.showUploadForm(); App.navigate('plan');">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full">
+      <h2 class="font-display text-2xl font-semibold text-kale-deep mb-4">My Recipes</h2>
+      <div id="myrecipes-tags" class="grid grid-cols-2 gap-3 mb-4"></div>
+      <div id="myrecipes-list" class="space-y-3"></div>
+      <div id="myrecipes-tag-back" class="hidden mb-4">
+        <button class="text-sm font-semibold text-carrot-accent" onclick="MyRecipes.showTags()">Back to Tags</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== PLAN (3-Step Wizard) ====== -->
+  <div id="page-plan" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <div class="flex items-center gap-4">
+        <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('meals')">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      </div>
+      <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+    </header>
+
+    <main class="flex-1 px-5 pb-32 max-w-2xl mx-auto w-full">
+      <!-- Progress Bar -->
+      <section class="py-8">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-bold text-kale-deep/60 uppercase tracking-widest" id="step-label">Step 1 of 3</span>
+          <span class="text-xs font-bold text-primary" id="step-name">Discovery</span>
+        </div>
+        <div class="w-full bg-herb-light h-1.5 rounded-full overflow-hidden">
+          <div class="bg-primary h-full transition-all duration-500 ease-out" id="progress-bar" style="width:33%"></div>
+        </div>
+      </section>
+
+      <!-- STEP 1: Choose Meals -->
+      <div class="wizard-panel active" id="plan-step-1">
+        <h2 class="font-display text-2xl font-semibold text-kale-deep">How would you like to start?</h2>
+        <p class="text-base text-on-surface-variant mt-1 mb-6">Choose a path to find the perfect meals for your next plan.</p>
+
+        <div class="meal-options grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Browse Saved (replaced inline by saved-recipes-panel) -->
+          <div id="browse-saved-card" class="md:col-span-2 bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer group hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98]" onclick="Plan.showSavedRecipes()">
+            <div class="flex justify-between items-start mb-4">
+              <div class="bg-herb-light p-3 rounded-full text-primary"><span class="material-symbols-outlined icon-filled">bookmark</span></div>
+              <span class="material-symbols-outlined text-kale-deep/20 group-hover:text-primary transition-colors">chevron_right</span>
+            </div>
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Browse Saved</h3>
+            <p class="text-sm text-on-surface-variant mt-1 mb-4">Access your curated collection of favorite recipes.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-herb-light text-primary px-3 py-1 rounded-full text-xs font-bold">Breakfast</span>
+              <span class="bg-herb-light text-primary px-3 py-1 rounded-full text-xs font-bold">Lunch</span>
+              <span class="bg-herb-light text-primary px-3 py-1 rounded-full text-xs font-bold">Dinner</span>
+            </div>
+          </div>
+
+          <!-- Saved Recipes Panel (replaces Browse Saved card inline) -->
+          <div id="saved-recipes-panel" class="hidden md:col-span-2">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-display text-xl font-semibold text-kale-deep">Saved Recipes</h3>
+              <div class="flex items-center gap-2">
+                <button class="text-xs font-semibold text-primary bg-herb-light px-3 py-1.5 rounded-full active:scale-95 transition-transform" onclick="TagEditor.open()">Edit Tags</button>
+                <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+              </div>
+            </div>
+            <div id="category-filters" class="flex gap-2 mb-4 overflow-x-auto pb-2"></div>
+            <div id="saved-recipes-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1"></div>
+            <div id="saved-recipes-load-more" class="hidden text-center mt-3">
+              <button class="text-sm font-semibold text-primary bg-herb-light px-4 py-2 rounded-full active:scale-95 transition-transform" onclick="Plan.loadMoreSavedRecipes()">Load More</button>
+            </div>
+          </div>
+
+          <!-- Find New Recipe -->
+          <div class="bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer group hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all flex flex-col justify-between active:scale-[0.98]" onclick="Plan.startQuestionnaire()">
+            <div>
+              <div class="bg-carrot-accent/10 p-3 rounded-full text-carrot-accent w-fit mb-4">
+                <span class="material-symbols-outlined icon-filled">quiz</span>
+              </div>
+              <h3 class="font-display text-xl font-semibold text-kale-deep">Find New Recipe</h3>
+              <p class="text-sm text-on-surface-variant mt-1">Take a quick quiz to match your mood and cravings.</p>
+            </div>
+            <div class="mt-4 flex items-center text-carrot-accent font-semibold text-sm gap-2">
+              Start Quiz <span class="material-symbols-outlined">trending_flat</span>
+            </div>
+          </div>
+
+          <!-- Add Recipe -->
+          <div class="bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer group hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98]" onclick="Plan.showManualOptions()">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="bg-primary/10 p-2 rounded-full text-primary"><span class="material-symbols-outlined">add_circle</span></div>
+              <h3 class="font-display text-xl font-semibold text-kale-deep">Add Recipe</h3>
+            </div>
+            <p class="text-sm text-on-surface-variant">Type it in, snap a photo, or paste a link.</p>
+          </div>
+
+          <!-- Random Trending (AI) -->
+          <div class="md:col-span-2 relative overflow-hidden bg-kale-deep rounded-xl p-6 shadow-lg cursor-pointer group min-h-[180px] flex flex-col justify-end active:scale-[0.98] transition-all" onclick="Plan.getRandomRecipe()">
+            <div class="absolute inset-0 opacity-40 group-hover:scale-110 transition-transform duration-700">
+              <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQIyG7VvybFXczmXfjFcTI7liEXoW_Wt_JASvdtK0YCRAaYC0Z_IZVHIvl5DSNa8eiO8LBf9RagGbMjydWjMxM_63B2LRFq9o1fv69w49xzCIDLMsO_TlN_EHQJRKOQvJXW7oFEJ3j4LxnnE9izriRX9yTjnZ0CFXMbT7FBVLoaxC2RlsHw_if7WpxFVpuePkUnyEEmWaP_cOir9STGB-yMQWEXXsijYhZc_baPon3neUV6pFINQ3QA9IdXEKf-Vq-mKGpAypFiG1P" alt="">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-kale-deep via-kale-deep/40 to-transparent"></div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-herb-light icon-filled">auto_awesome</span>
+                <span class="text-xs font-bold text-herb-light uppercase tracking-widest">AI Discovery</span>
+              </div>
+              <h3 class="font-display text-xl font-semibold text-white">Random Trending</h3>
+              <p class="text-sm text-herb-light/80 mt-1">Let AI suggest what's fresh and popular right now.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual Options Panel -->
+        <div id="manual-options-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Add a Recipe</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <div class="grid grid-cols-1 gap-3">
+            <div class="bg-cream-surface rounded-xl p-5 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98] flex items-center gap-4" onclick="Plan.showUploadForm()">
+              <div class="bg-primary/10 p-3 rounded-full text-primary flex-shrink-0">
+                <span class="material-symbols-outlined">edit_note</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-kale-deep">Full Manual</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Type in each ingredient and step by hand.</p>
+              </div>
+              <span class="material-symbols-outlined text-kale-deep/20 ml-auto">chevron_right</span>
+            </div>
+            <div class="bg-cream-surface rounded-xl p-5 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98] flex items-center gap-4" onclick="Plan.showPhotoImport()">
+              <div class="bg-carrot-accent/10 p-3 rounded-full text-carrot-accent flex-shrink-0">
+                <span class="material-symbols-outlined">photo_camera</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-kale-deep">Upload Photo</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Snap a photo of food or a recipe — AI fills in the rest.</p>
+              </div>
+              <span class="material-symbols-outlined text-kale-deep/20 ml-auto">chevron_right</span>
+            </div>
+            <div class="bg-cream-surface rounded-xl p-5 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98] flex items-center gap-4" onclick="Plan.showLinkImport()">
+              <div class="bg-primary/10 p-3 rounded-full text-primary flex-shrink-0">
+                <span class="material-symbols-outlined">link</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-kale-deep">Add a Link</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Paste a recipe URL — AI imports it for you.</p>
+              </div>
+              <span class="material-symbols-outlined text-kale-deep/20 ml-auto">chevron_right</span>
+            </div>
+            <div class="bg-cream-surface rounded-xl p-5 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 cursor-pointer hover:shadow-[0_8px_32px_rgba(45,106,79,0.1)] transition-all active:scale-[0.98] flex items-center gap-4" onclick="Plan.showAIChat()">
+              <div class="bg-carrot-accent/10 p-3 rounded-full text-carrot-accent flex-shrink-0">
+                <span class="material-symbols-outlined">auto_awesome</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-kale-deep">Ask AI</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">Chat with AI to find the perfect recipe.</p>
+              </div>
+              <span class="material-symbols-outlined text-kale-deep/20 ml-auto">chevron_right</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="random-recipe-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Trending Recipe</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <div id="random-recipe-result"></div>
+        </div>
+
+        <div id="questionnaire-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Find a Recipe</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <div id="questionnaire-content"></div>
+        </div>
+
+        <div id="upload-recipe-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Add a Recipe</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <form id="upload-recipe-form" class="bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 space-y-4">
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-kale-deep/60 uppercase">Recipe Name</label>
+              <input type="text" id="upload-title" class="w-full bg-white border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="e.g. Grandma's Lasagna" required>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-kale-deep/60 uppercase mb-2 block">Categories</label>
+              <div id="upload-categories" class="flex gap-2 flex-wrap"></div>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-kale-deep/60 uppercase">Photo (optional)</label>
+              <input type="hidden" id="upload-image" value="">
+              <div id="upload-photo-preview" class="hidden mb-2">
+                <img id="upload-photo-img" class="w-full h-40 object-cover rounded-xl" src="" alt="">
+              </div>
+              <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-outline-variant rounded-xl cursor-pointer hover:border-primary transition-colors bg-parchment-bg" id="upload-photo-dropzone">
+                <span class="material-symbols-outlined text-2xl text-on-surface-variant mb-1">add_a_photo</span>
+                <span class="text-xs font-semibold text-on-surface-variant">Tap to add a photo</span>
+                <input type="file" id="upload-photo-input" class="hidden" accept="image/*">
+              </label>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-kale-deep/60 uppercase">Servings</label>
+              <input type="number" id="upload-servings" value="4" min="1" class="w-full bg-white border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors">
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-kale-deep/60 uppercase">Ingredients (one per line)</label>
+              <textarea id="upload-ingredients" class="w-full bg-white border border-outline-variant rounded-lg p-3 text-sm h-24 focus:outline-none focus:border-primary transition-colors resize-none" placeholder="2 cups flour&#10;1 lb chicken breast&#10;3 tbsp soy sauce"></textarea>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold text-kale-deep/60 uppercase">Instructions</label>
+              <textarea id="upload-instructions" class="w-full bg-white border border-outline-variant rounded-lg p-3 text-sm h-24 focus:outline-none focus:border-primary transition-colors resize-none" placeholder="Step by step..."></textarea>
+            </div>
+            <div class="flex gap-3">
+              <button type="submit" name="action" value="save" class="flex-1 bg-primary text-white font-semibold text-sm py-3 rounded-lg hover:bg-kale-deep transition-colors active:scale-95">Save</button>
+              <button type="submit" name="action" value="edit" class="flex-1 bg-surface-container-high text-kale-deep font-semibold text-sm py-3 rounded-lg transition-colors active:scale-95">Edit</button>
+              <button type="submit" name="action" value="add" class="flex-1 bg-carrot-accent text-white font-semibold text-sm py-3 rounded-lg hover:bg-carrot-accent/90 transition-colors active:scale-95">Add to Week</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Photo Import Panel -->
+        <div id="photo-import-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Upload Photo</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <div class="bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+            <p class="text-sm text-on-surface-variant mb-4">Upload a photo of a dish or a written/printed recipe. AI will extract the recipe for you.</p>
+            <div id="photo-import-preview" class="hidden mb-4">
+              <img id="photo-import-img" class="w-full h-48 object-cover rounded-xl" src="" alt="">
+            </div>
+            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-outline-variant rounded-xl cursor-pointer hover:border-primary transition-colors bg-parchment-bg" id="photo-import-dropzone">
+              <span class="material-symbols-outlined text-3xl text-on-surface-variant mb-2">add_a_photo</span>
+              <span class="text-sm font-semibold text-on-surface-variant">Tap to select a photo</span>
+              <span class="text-xs text-outline mt-1">JPG, PNG, HEIC supported</span>
+              <input type="file" id="photo-import-input" class="hidden" accept="image/*" onchange="Plan.handlePhotoImport(event)">
+            </label>
+            <button class="w-full mt-4 bg-carrot-accent text-white font-semibold text-sm py-3 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-50" id="photo-import-btn" disabled onclick="Plan.processPhotoImport()">
+              <span class="material-symbols-outlined text-lg">auto_awesome</span>
+              Extract Recipe with AI
+            </button>
+            <div id="photo-import-result" class="mt-4"></div>
+          </div>
+        </div>
+
+        <!-- AI Chat Panel -->
+        <div id="ai-chat-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Ask AI</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <div class="bg-cream-surface rounded-xl shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 overflow-hidden">
+            <div id="ai-chat-messages" class="p-4 space-y-3 max-h-[50vh] overflow-y-auto">
+              <div class="flex gap-2">
+                <div class="w-7 h-7 rounded-full bg-carrot-accent/10 flex items-center justify-center flex-shrink-0">
+                  <span class="material-symbols-outlined text-carrot-accent text-sm">auto_awesome</span>
+                </div>
+                <div class="bg-parchment-bg rounded-xl rounded-tl-sm p-3 text-sm text-on-surface max-w-[85%]">
+                  Hi! I can help you find recipes. Try asking things like "find me a recipe for eggs" or "quick dinner ideas with chicken".
+                </div>
+              </div>
+            </div>
+            <div class="border-t border-kale-deep/5 p-3 flex gap-2">
+              <input type="text" id="ai-chat-input" class="flex-1 bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Ask about a recipe..." onkeydown="if(event.key==='Enter')Plan.sendAIChat()">
+              <button class="w-10 h-10 bg-carrot-accent text-white rounded-full flex items-center justify-center active:scale-95 transition-transform flex-shrink-0" onclick="Plan.sendAIChat()">
+                <span class="material-symbols-outlined text-lg">send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Link Import Panel -->
+        <div id="link-import-panel" class="hidden mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-display text-xl font-semibold text-kale-deep">Add a Link</h3>
+            <button class="text-sm font-semibold text-carrot-accent" onclick="Plan.closePanels()">Back</button>
+          </div>
+          <div class="bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+            <p class="text-sm text-on-surface-variant mb-4">Paste a recipe URL and AI will import the recipe for you.</p>
+            <div class="space-y-1 mb-4">
+              <label class="text-xs font-bold text-kale-deep/60 uppercase">Recipe URL</label>
+              <input type="url" id="link-import-url" class="w-full bg-white border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="https://www.allrecipes.com/recipe/...">
+            </div>
+            <button class="w-full bg-carrot-accent text-white font-semibold text-sm py-3 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2" id="link-import-btn" onclick="Plan.processLinkImport()">
+              <span class="material-symbols-outlined text-lg">auto_awesome</span>
+              Import Recipe with AI
+            </button>
+            <div id="link-import-result" class="mt-4"></div>
+          </div>
+        </div>
+
+        <!-- Selected Meals Bar -->
+        <div id="selected-meals-bar" class="fixed bottom-20 left-0 w-full bg-cream-surface/90 backdrop-blur-md p-4 shadow-[0_-4px_24px_rgba(45,106,79,0.06)] border-t border-kale-deep/5 z-50" style="display:none;">
+          <div class="max-w-2xl mx-auto flex items-center justify-between gap-4">
+            <p class="text-sm font-semibold text-on-surface-variant" id="selected-meals-text"><span class="text-carrot-accent" id="selected-count">0</span> meals selected</p>
+            <button class="px-8 py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-2" onclick="Plan.goToStep(2)" id="btn-next-step2" disabled>
+              Next <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Ingredient Checklist -->
+      <div class="wizard-panel" id="plan-step-2">
+        <h2 class="font-display text-2xl font-semibold text-kale-deep mb-1">What's in your kitchen?</h2>
+        <p class="text-base text-on-surface-variant mb-6">Tap ingredients you already have to remove them from your grocery list.</p>
+        <div id="ingredient-checklist" class="space-y-2"></div>
+        <div class="mt-8 flex gap-3">
+          <button class="flex-1 py-3 bg-surface-container-high text-kale-deep font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.goToStep(1)">Back</button>
+          <button class="flex-1 py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="Plan.goToStep(3)">
+            Next: Grocery Cart <span class="material-symbols-outlined text-lg">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Plan Complete -->
+      <div class="wizard-panel" id="plan-complete">
+        <div class="text-center py-16">
+          <span class="material-symbols-outlined text-6xl text-primary mb-4 block">check_circle</span>
+          <h2 class="font-display text-2xl font-semibold text-kale-deep mb-2">Plan Saved!</h2>
+          <p class="text-base text-on-surface-variant mb-8">Your meals are set for the week. Time to cook!</p>
+          <div class="flex flex-col gap-3 max-w-xs mx-auto">
+            <button class="py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full shadow-lg active:scale-95 transition-transform" onclick="App.navigate('meals')">View This Week</button>
+            <button class="py-3 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="App.navigate('grocery')">View Grocery List</button>
+            <button class="py-3 bg-surface-container-high text-kale-deep font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.restartPlan()">Restart Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Shopping -->
+      <div class="wizard-panel" id="plan-step-3">
+        <div id="shopping-list" class="space-y-2"></div>
+        <div id="kroger-section" class="mt-6">
+          <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+            <div class="flex items-center justify-between gap-4 mb-4">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-outline-variant/30 shadow-sm">
+                  <span class="material-symbols-outlined text-primary text-2xl">storefront</span>
+                </div>
+                <div>
+                  <h3 class="font-display text-xl font-semibold text-kale-deep">Smith's Marketplace</h3>
+                  <p class="text-sm text-on-surface-variant">Find the best prices</p>
+                </div>
+              </div>
+              <button class="px-4 py-2 bg-carrot-accent text-white font-semibold text-xs rounded-full active:scale-95 transition-transform" id="btn-kroger-cart" onclick="Shopping.addToKrogerCart()">Search</button>
+            </div>
+            <div id="kroger-status" class="hidden text-center py-4">
+              <span class="material-symbols-outlined animate-spin text-primary text-3xl">progress_activity</span>
+              <p class="text-sm text-on-surface-variant mt-2">Finding the best prices at Smith's...</p>
+            </div>
+            <div id="kroger-results"></div>
+          </div>
+        </div>
+        <div class="mt-8 flex gap-3">
+          <button class="flex-1 py-3 bg-surface-container-high text-kale-deep font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.goToStep(2)">Back</button>
+          <button class="flex-1 py-3 bg-primary text-white font-semibold text-sm rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="Plan.finalizePlan()">
+            Save Plan <span class="material-symbols-outlined text-lg">check</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== RECIPES (Browse All) ====== -->
+  <div id="page-recipes" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-display text-2xl font-semibold text-kale-deep">Recipes</h2>
+        <button class="w-10 h-10 bg-carrot-accent text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform" onclick="Plan.showUploadForm(); App.navigate('plan');">
+          <span class="material-symbols-outlined">add</span>
+        </button>
+      </div>
+      <div id="all-category-filters" class="flex gap-2 mb-4 overflow-x-auto pb-2"></div>
+      <div id="all-recipes-list" class="space-y-3"></div>
+    </main>
+  </div>
+
+  <!-- ====== GROCERY LIST ====== -->
+  <div id="page-grocery" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="GroceryList.refresh()" title="Refresh list">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-display text-2xl font-semibold text-kale-deep">Grocery List</h2>
+        <button class="inline-flex items-center gap-1 bg-carrot-accent text-white px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition-transform" onclick="GroceryList.showAddItem()">
+          <span class="material-symbols-outlined text-sm">add</span> Add Item
+        </button>
+      </div>
+      <div id="grocery-add-item" class="hidden mb-4">
+        <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+          <div class="flex gap-2">
+            <input type="text" id="grocery-manual-name" class="flex-1 bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Item name (e.g. Hair spray)">
+            <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="GroceryList.addManualItem()">Add</button>
+          </div>
+        </div>
+      </div>
+      <div id="grocery-list-content">
+        <div class="text-center py-16 text-on-surface-variant">
+          <span class="material-symbols-outlined text-6xl opacity-30 mb-4 block">shopping_cart</span>
+          <p class="text-base">No ingredients yet. Plan some meals first!</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== SOCIAL ====== -->
+  <div id="page-social" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full">
+      <h2 class="font-display text-2xl font-semibold text-kale-deep mb-4">Community</h2>
+      <!-- Search users -->
+      <div class="mb-4">
+        <div class="flex gap-2">
+          <input type="text" id="social-search" class="flex-1 bg-cream-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Search public profiles..." oninput="Social.searchUsers()">
+          <button class="px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="Social.searchUsers()">
+            <span class="material-symbols-outlined text-lg">search</span>
+          </button>
+        </div>
+      </div>
+      <!-- Profile results / feed -->
+      <div id="social-feed" class="space-y-4">
+        <div class="text-center py-12 text-on-surface-variant">
+          <span class="material-symbols-outlined text-5xl opacity-30 block mb-3">people</span>
+          <p class="text-sm">Search for public profiles to discover new recipes.</p>
+        </div>
+      </div>
+      <!-- User profile detail -->
+      <div id="social-profile-view" class="hidden">
+        <div class="flex items-center gap-2 mb-4">
+          <button class="text-sm font-semibold text-carrot-accent" onclick="Social.backToFeed()">Back</button>
+        </div>
+        <div id="social-profile-header" class="mb-6"></div>
+        <div id="social-profile-recipes" class="space-y-3"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== SETTINGS ====== -->
+  <div id="page-settings" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <div class="flex items-center gap-4">
+        <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('meals')">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      </div>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full space-y-4">
+      <h2 class="font-display text-2xl font-semibold text-kale-deep">Settings</h2>
+      <!-- Profile Picture & Account -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="relative">
+            <div class="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-kale-deep/10" id="settings-avatar-wrap">
+              <img id="settings-avatar" class="w-full h-full object-cover hidden" src="" alt="">
+              <span class="material-symbols-outlined text-3xl text-on-surface-variant" id="settings-avatar-placeholder">account_circle</span>
+            </div>
+            <button class="absolute -bottom-1 -right-1 w-7 h-7 bg-carrot-accent text-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform" onclick="Settings.changeAvatar()">
+              <span class="material-symbols-outlined text-sm">photo_camera</span>
+            </button>
+            <input type="file" id="avatar-input" class="hidden" accept="image/*" onchange="Settings.handleAvatarUpload(event)">
+          </div>
+          <div class="flex-1">
+            <p class="font-semibold text-kale-deep" id="settings-display-name"></p>
+            <p class="text-sm text-on-surface-variant" id="settings-email"></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-1" id="household-name-display">
+          <p class="text-sm text-on-surface-variant" id="settings-household"></p>
+          <button class="text-primary p-1 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="Settings.editHouseholdName()" title="Edit household name">
+            <span class="material-symbols-outlined text-base">edit</span>
+          </button>
+        </div>
+        <div class="hidden mt-2 flex items-center gap-2" id="household-name-edit">
+          <input type="text" id="household-name-input" class="flex-1 bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Household name">
+          <button class="px-3 py-2 bg-primary text-white rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="Settings.saveHouseholdName()">Save</button>
+          <button class="px-3 py-2 bg-surface-container-high text-kale-deep rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="Settings.cancelEditHouseholdName()">Cancel</button>
+        </div>
+      </div>
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 text-center">
+        <p class="text-xs font-bold text-kale-deep/60 uppercase tracking-wider mb-2">Household Invite Code</p>
+        <p class="text-3xl font-bold tracking-[4px] text-kale-deep" id="invite-code">--------</p>
+        <p class="text-xs text-on-surface-variant mt-2">Share this code so others can join your household</p>
+      </div>
+      <!-- Profile Visibility -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-kale-deep">Profile Visibility</h3>
+            <p class="text-xs text-on-surface-variant" id="visibility-status">Private — only your household can see your recipes</p>
+          </div>
+          <button class="relative w-12 h-7 rounded-full transition-colors" id="visibility-toggle" onclick="Settings.toggleVisibility()">
+            <div class="absolute inset-0 rounded-full bg-surface-container-high transition-colors" id="visibility-track"></div>
+            <div class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform" id="visibility-thumb"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Smith's/Kroger Connection -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-outline-variant/30 shadow-sm">
+            <span class="material-symbols-outlined text-primary text-xl">storefront</span>
+          </div>
+          <div>
+            <h3 class="font-semibold text-kale-deep">Smith's Account</h3>
+            <p class="text-xs text-on-surface-variant" id="kroger-status-text">Not connected</p>
+          </div>
+        </div>
+        <button class="w-full py-3 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform flex items-center justify-center gap-2" id="kroger-connect-btn" onclick="Settings.connectKroger()">
+          <span class="material-symbols-outlined text-lg">link</span>
+          <span id="kroger-connect-label">Connect Smith's Account</span>
+        </button>
+      </div>
+
+      <button class="w-full py-3 border-2 border-carrot-accent text-carrot-accent font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Auth.signOut()">Sign Out</button>
+    </main>
+  </div>
+
+</div>
+
+<!-- ====== Recipe Detail Modal ====== -->
+<div class="modal-overlay fixed inset-0 bg-black/60 z-[200] items-end" id="recipe-modal">
+  <div class="modal-sheet bg-parchment-bg w-full max-h-[90vh] rounded-t-2xl overflow-y-auto p-5 pb-safe slide-up">
+    <!-- Action buttons at top -->
+    <div class="flex gap-3 mb-4" id="modal-top-buttons">
+      <button class="flex-1 py-2.5 bg-surface-container-high text-kale-deep font-semibold text-sm rounded-full active:scale-95 transition-transform" id="modal-close-btn" onclick="RecipeModal.close()">Close</button>
+      <button class="flex-1 py-2.5 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" id="modal-edit-btn" onclick="RecipeModal.openEditForm()">Edit Recipe</button>
+      <button class="flex-1 py-2.5 bg-carrot-accent text-white font-semibold text-sm rounded-full shadow-lg active:scale-95 transition-transform" id="modal-add-btn" onclick="RecipeModal.addToWeek()">Add to Week</button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high text-kale-deep active:scale-95 transition-transform flex-shrink-0" onclick="RecipeModal.showExportMenu()" title="Export recipe">
+        <span class="material-symbols-outlined text-lg">share</span>
+      </button>
+    </div>
+    <!-- Export Menu -->
+    <div id="modal-export-menu" class="hidden mb-4">
+      <div class="bg-cream-surface rounded-xl p-3 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5 flex gap-2">
+        <button class="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-herb-light/30 transition-colors active:scale-95" onclick="RecipeModal.exportClipboard()">
+          <span class="material-symbols-outlined text-primary">content_copy</span>
+          <span class="text-[10px] font-semibold text-on-surface-variant">Copy</span>
+        </button>
+        <button class="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-herb-light/30 transition-colors active:scale-95" onclick="RecipeModal.exportIMessage()">
+          <span class="material-symbols-outlined text-primary">chat</span>
+          <span class="text-[10px] font-semibold text-on-surface-variant">iMessage</span>
+        </button>
+        <button class="flex-1 flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-herb-light/30 transition-colors active:scale-95" onclick="RecipeModal.exportGmail()">
+          <span class="material-symbols-outlined text-primary">mail</span>
+          <span class="text-[10px] font-semibold text-on-surface-variant">Gmail</span>
+        </button>
+      </div>
+    </div>
+    <img class="w-full h-48 object-cover rounded-xl mb-4 bg-surface-container-high" id="modal-recipe-img" src="" alt="" onerror="this.style.display='none'">
+    <input type="file" id="modal-photo-input" class="hidden" accept="image/*" onchange="RecipeModal.handlePhotoUpload(event)">
+    <h2 class="font-display text-2xl font-bold text-kale-deep" id="modal-recipe-title"></h2>
+    <div class="flex items-center gap-3 mb-3">
+      <p class="text-sm text-on-surface-variant" id="modal-recipe-meta"></p>
+      <button class="inline-flex items-center gap-1 text-primary px-2 py-0.5 rounded-full text-xs font-bold bg-herb-light/50 hover:bg-herb-light transition-colors active:scale-95" id="modal-add-photo-btn" onclick="RecipeModal.triggerPhotoUpload()">
+        <span class="material-symbols-outlined text-sm">add_a_photo</span>
+        <span id="modal-photo-label">Add Photo</span>
+      </button>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap mb-4">
+      <div id="modal-recipe-tags" class="flex gap-2 flex-wrap"></div>
+      <button class="inline-flex items-center gap-1 bg-herb-light/50 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold hover:bg-herb-light transition-colors" id="modal-add-tag-btn" onclick="RecipeModal.showTagEditor()">
+        <span class="material-symbols-outlined text-xs">add</span> Add Tag
+      </button>
+    </div>
+    <div id="modal-tag-editor" class="hidden mb-4">
+      <div class="flex gap-2 flex-wrap" id="modal-tag-options"></div>
+    </div>
+    <!-- Pair With -->
+    <div class="flex items-center gap-2 mb-2">
+      <button class="inline-flex items-center gap-1 bg-carrot-accent/10 text-carrot-accent px-2 py-0.5 rounded-full text-[10px] font-bold hover:bg-carrot-accent/20 transition-colors" id="modal-pair-btn" onclick="RecipeModal.showPairPicker()">
+        <span class="material-symbols-outlined text-xs">link</span> Pair With
+      </button>
+    </div>
+    <div id="modal-paired-recipes" class="hidden mb-4">
+      <h3 class="text-xs font-bold text-kale-deep/60 uppercase tracking-wider mb-2">Paired With</h3>
+      <div id="modal-paired-list" class="space-y-1"></div>
+    </div>
+    <div id="modal-pair-picker" class="hidden mb-4">
+      <div class="bg-cream-surface rounded-xl p-3 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <input type="text" id="pair-search-input" class="w-full bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors mb-2" placeholder="Search recipes to pair..." oninput="RecipeModal.filterPairResults()">
+        <div id="pair-search-results" class="space-y-1 max-h-40 overflow-y-auto"></div>
+      </div>
+    </div>
+    <!-- Recipe Scaling -->
+    <div class="flex items-center gap-3 mb-4" id="modal-scale-wrap">
+      <span class="text-xs font-bold text-kale-deep/60 uppercase tracking-wider">Scale</span>
+      <div class="flex gap-1">
+        <button class="scale-btn px-3 py-1 rounded-full text-xs font-bold bg-primary text-white transition-all" data-scale="1" onclick="RecipeModal.setScale(1)">1x</button>
+        <button class="scale-btn px-3 py-1 rounded-full text-xs font-bold bg-herb-light text-primary transition-all" data-scale="2" onclick="RecipeModal.setScale(2)">2x</button>
+        <button class="scale-btn px-3 py-1 rounded-full text-xs font-bold bg-herb-light text-primary transition-all" data-scale="3" onclick="RecipeModal.setScale(3)">3x</button>
+        <button class="scale-btn px-3 py-1 rounded-full text-xs font-bold bg-herb-light text-primary transition-all" data-scale="4" onclick="RecipeModal.setScale(4)">4x</button>
+      </div>
+    </div>
+    <h3 class="text-xs font-bold text-kale-deep/60 uppercase tracking-wider mb-2">Ingredients</h3>
+    <div id="modal-recipe-ingredients" class="mb-4"></div>
+    <h3 class="text-xs font-bold text-kale-deep/60 uppercase tracking-wider mb-2">Instructions</h3>
+    <div id="modal-recipe-instructions" class="text-sm text-on-surface-variant leading-relaxed"></div>
+  </div>
+</div>
+
+<!-- ====== Tag Editor Modal ====== -->
+<div class="modal-overlay fixed inset-0 bg-black/60 z-[200] items-end" id="tag-editor-modal">
+  <div class="modal-sheet bg-parchment-bg w-full max-h-[70vh] rounded-t-2xl overflow-y-auto p-5 pb-safe slide-up">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-display text-xl font-semibold text-kale-deep">Edit Tags</h3>
+      <button class="text-sm font-semibold text-carrot-accent" onclick="TagEditor.close()">Done</button>
+    </div>
+    <div id="tag-editor-list" class="space-y-2 mb-4"></div>
+    <div class="flex gap-2">
+      <input type="text" id="tag-editor-new" class="flex-1 bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="New tag name...">
+      <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="TagEditor.addTag()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Bottom Nav ====== -->
+<nav id="bottom-nav" class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-cream-surface shadow-[0_-4px_24px_rgba(45,106,79,0.06)] rounded-t-xl" style="display:none;">
+  <button class="nav-btn flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant active:scale-90 transition-transform" data-page="meals" onclick="App.navigate('meals')">
+    <span class="material-symbols-outlined nav-icon">calendar_today</span>
+    <span class="text-[10px] font-semibold mt-0.5">This Week</span>
+  </button>
+  <button class="nav-btn flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant active:scale-90 transition-transform" data-page="myrecipes" onclick="App.navigate('myrecipes')">
+    <span class="material-symbols-outlined nav-icon">menu_book</span>
+    <span class="text-[10px] font-semibold mt-0.5">My Recipes</span>
+  </button>
+  <button class="nav-btn flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant active:scale-90 transition-transform" data-page="plan" onclick="App.navigate('plan')">
+    <span class="material-symbols-outlined nav-icon">add_circle</span>
+    <span class="text-[10px] font-semibold mt-0.5">Plan</span>
+  </button>
+  <button class="nav-btn flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant active:scale-90 transition-transform" data-page="grocery" onclick="App.navigate('grocery')">
+    <span class="material-symbols-outlined nav-icon">shopping_cart</span>
+    <span class="text-[10px] font-semibold mt-0.5">Grocery</span>
+  </button>
+  <button class="nav-btn flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant active:scale-90 transition-transform" data-page="social" onclick="App.navigate('social')">
+    <span class="material-symbols-outlined nav-icon">people</span>
+    <span class="text-[10px] font-semibold mt-0.5">Social</span>
+  </button>
+  <button class="nav-btn flex flex-col items-center justify-center px-3 py-1 text-on-surface-variant active:scale-90 transition-transform" data-page="settings" onclick="App.navigate('settings')">
+    <span class="material-symbols-outlined nav-icon">settings</span>
+    <span class="text-[10px] font-semibold mt-0.5">Settings</span>
+  </button>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/supabase.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/recipes.js"></script>
+<script src="/js/plan.js"></script>
+<script src="/js/shopping.js"></script>
+<script src="/js/social.js"></script>
+<script src="/js/app.js"></script>
+<script>
+  // Auth tab toggle
+  function switchAuthTab(type) {
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const joinSection = document.getElementById('join-household-section');
+    if (type === 'login') {
+      loginTab.classList.add('bg-white', 'shadow-sm', 'text-primary');
+      loginTab.classList.remove('text-on-surface-variant');
+      registerTab.classList.remove('bg-white', 'shadow-sm', 'text-primary');
+      registerTab.classList.add('text-on-surface-variant');
+      loginForm.classList.remove('hidden');
+      signupForm.classList.add('hidden');
+      if(joinSection) joinSection.style.display = '';
+    } else {
+      registerTab.classList.add('bg-white', 'shadow-sm', 'text-primary');
+      registerTab.classList.remove('text-on-surface-variant');
+      loginTab.classList.remove('bg-white', 'shadow-sm', 'text-primary');
+      loginTab.classList.add('text-on-surface-variant');
+      signupForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      if(joinSection) joinSection.style.display = 'none';
+    }
+  }
+</script>
+</body>
+</html>

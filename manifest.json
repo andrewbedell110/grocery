@@ -1,0 +1,23 @@
+{
+  "name": "MealMap - Meal Planner",
+  "short_name": "MealMap",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFCF0",
+  "theme_color": "#0f5238",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

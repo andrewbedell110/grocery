@@ -1,0 +1,120 @@
+/* MealMap - Custom styles (Tailwind handles the rest) */
+
+/* ---- Page System ---- */
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; }
+
+/* ---- Toast ---- */
+.toast {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 999;
+  transition: top 0.3s;
+  white-space: nowrap;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.toast.show { top: 20px; }
+.toast.info { background: #efeee3; color: #1b1c15; }
+.toast.success { background: #D8F3DC; color: #0f5238; }
+.toast.error { background: #ffdad6; color: #93000a; }
+
+/* ---- Modal ---- */
+.modal-overlay { display: none; }
+.modal-overlay.show { display: flex; }
+
+/* ---- Wizard panels ---- */
+.wizard-panel { display: none; }
+.wizard-panel.active { display: block; }
+
+/* ---- Pantry checkbox ---- */
+.pantry-check:checked + label .circle-box {
+  background-color: #0f5238;
+  border-color: #0f5238;
+}
+.pantry-check:checked + label .check-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+.pantry-check:checked + label {
+  opacity: 0.45;
+}
+.pantry-check:checked + label .ingredient-name {
+  text-decoration: line-through;
+}
+
+/* ---- Animations ---- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.6s ease-out forwards; }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.slide-up { animation: slideUp 0.3s ease; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin { animation: spin 0.8s linear infinite; }
+
+/* ---- Image mask for hero ---- */
+.image-mask {
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 0; }
+
+/* ---- Safe area ---- */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ---- Floating paper shadow ---- */
+.floating-paper {
+  box-shadow: 0 16px 24px -8px rgba(45, 106, 79, 0.08);
+}
+
+/* ---- Glass pill ---- */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- Tag search animation ---- */
+.tag-search-wrap {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: width 0.3s ease;
+  flex-shrink: 0;
+}
+.tag-search-wrap.collapsed { width: 32px; }
+.tag-search-wrap.expanded { width: 160px; }
+.tag-search-wrap .tag-search-input {
+  opacity: 0;
+  width: 0;
+  padding: 0;
+  border: none;
+  transition: opacity 0.2s ease 0.1s, width 0.3s ease;
+}
+.tag-search-wrap.expanded .tag-search-input {
+  opacity: 1;
+  width: 120px;
+  padding: 4px 8px;
+}
+.tag-search-wrap .tag-search-icon {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.tag-search-wrap.expanded .tag-search-icon {
+  transform: rotate(90deg);
+}
