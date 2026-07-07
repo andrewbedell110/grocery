@@ -622,9 +622,6 @@ const Settings = {
       profile.display_name || profile.email?.split('@')[0] || 'User';
     document.getElementById('settings-household').textContent =
       profile.households?.name || 'No household';
-    document.getElementById('invite-code').textContent =
-      profile.households?.invite_code || '--------';
-
     // Avatar
     const avatarImg = document.getElementById('settings-avatar');
     const avatarPlaceholder = document.getElementById('settings-avatar-placeholder');

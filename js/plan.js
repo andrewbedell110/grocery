@@ -7,6 +7,7 @@ const Plan = {
   selectedRecipes: [],   // array of recipe objects
   ingredients: [],       // aggregated ingredient list
   shoppingList: [],      // filtered (items user doesn't have)
+  _aiRecipes: [],        // stored AI recipe data (avoids HTML attribute escaping issues)
 
   formatInstructions(text) {
     if (!text) return '<p>No instructions provided.</p>';
@@ -238,6 +239,9 @@ const Plan = {
   },
 
   renderAIRecipe(container, data) {
+    const idx = this._aiRecipes.length;
+    this._aiRecipes.push(data);
+
     container.innerHTML = `
       <div class="bg-cream-surface rounded-xl p-6 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
         ${data.image_url ? `<img src="${escapeHtml(data.image_url)}" class="w-full h-44 object-cover rounded-lg mb-4" alt="" onerror="this.style.display='none'">` : '<div class="w-full h-44 bg-surface-container-high flex items-center justify-center text-6xl rounded-lg mb-4">🍽</div>'}
@@ -250,15 +254,15 @@ const Plan = {
         <p class="text-xs font-bold text-kale-deep/60 uppercase tracking-wider mb-2">Instructions</p>
         <div class="text-sm text-on-surface-variant leading-relaxed space-y-2">${Plan.formatInstructions(data.instructions || '')}</div>
         <div class="flex gap-3 mt-6">
-          <button class="flex-1 py-3 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.saveOnlyAI(this)" data-recipe='${escapeHtml(JSON.stringify(data))}'>Save</button>
-          <button class="flex-1 py-3 bg-surface-container-high text-kale-deep font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.saveAndEditAI(this)" data-recipe='${escapeHtml(JSON.stringify(data))}'>Edit</button>
-          <button class="flex-1 py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.saveAndSelectAI(this)" data-recipe='${escapeHtml(JSON.stringify(data))}'>Add to Week</button>
+          <button class="flex-1 py-3 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.saveOnlyAI(${idx})">Save</button>
+          <button class="flex-1 py-3 bg-surface-container-high text-kale-deep font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.saveAndEditAI(${idx})">Edit</button>
+          <button class="flex-1 py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Plan.saveAndSelectAI(${idx})">Add to Week</button>
         </div>
       </div>`;
   },
 
-  async _saveAIRecipe(btn) {
-    const data = JSON.parse(btn.dataset.recipe);
+  async _saveAIRecipe(idx) {
+    const data = this._aiRecipes[idx];
     const ingredients = (data.ingredients || []).map(i => {
       if (typeof i === 'string') return Recipes.parseIngredientLine(i);
       return i;
@@ -276,9 +280,9 @@ const Plan = {
     return await Recipes.getRecipe(recipe.id);
   },
 
-  async saveOnlyAI(btn) {
+  async saveOnlyAI(idx) {
     try {
-      const full = await this._saveAIRecipe(btn);
+      const full = await this._saveAIRecipe(idx);
       this.closePanels();
       App.showToast('Recipe saved!', 'success');
       RecipeModal.open(full.id, false);
@@ -287,9 +291,9 @@ const Plan = {
     }
   },
 
-  async saveAndEditAI(btn) {
+  async saveAndEditAI(idx) {
     try {
-      const full = await this._saveAIRecipe(btn);
+      const full = await this._saveAIRecipe(idx);
       this.closePanels();
       App.showToast('Recipe saved!', 'success');
       await RecipeModal.open(full.id, false);
@@ -299,9 +303,9 @@ const Plan = {
     }
   },
 
-  async saveAndSelectAI(btn) {
+  async saveAndSelectAI(idx) {
     try {
-      const full = await this._saveAIRecipe(btn);
+      const full = await this._saveAIRecipe(idx);
       this.selectRecipe(full);
       this.closePanels();
       App.showToast('Recipe saved & added!', 'success');
