@@ -14,6 +14,8 @@ create table profiles (
   email text,
   display_name text,
   household_id uuid,
+  avatar_url text,
+  is_public boolean default false,
   created_at timestamptz default now()
 );
 
@@ -56,24 +58,20 @@ alter table profiles
 -- ============================================================
 create table categories (
   id uuid primary key default gen_random_uuid(),
-  name text not null unique,
-  sort_order int default 0
+  name text not null,
+  sort_order int default 0,
+  household_id uuid references households(id) on delete cascade  -- NULL = global default
 );
 
--- Seed default categories
+-- Unique on (name, household) — allows same name across households
+create unique index categories_name_household_idx
+  on categories (name, coalesce(household_id, '00000000-0000-0000-0000-000000000000'));
+
+-- Seed default categories (global)
 insert into categories (name, sort_order) values
   ('Breakfast', 1),
   ('Lunch', 2),
-  ('Dinner', 3),
-  ('American', 4),
-  ('Chinese', 5),
-  ('Mexican', 6),
-  ('Italian', 7),
-  ('Indian', 8),
-  ('Japanese', 9),
-  ('Thai', 10),
-  ('Mediterranean', 11),
-  ('Other', 99);
+  ('Dinner', 3);
 
 -- ============================================================
 -- RECIPES
@@ -166,6 +164,32 @@ create table shopping_list_items (
 );
 
 alter table shopping_list_items enable row level security;
+
+-- ============================================================
+-- RECIPE PAIRINGS (self-join many-to-many)
+-- ============================================================
+create table recipe_pairings (
+  id uuid primary key default gen_random_uuid(),
+  recipe_id uuid not null references recipes(id) on delete cascade,
+  paired_recipe_id uuid not null references recipes(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique (recipe_id, paired_recipe_id)
+);
+
+alter table recipe_pairings enable row level security;
+
+-- ============================================================
+-- RECIPE LIKES (social)
+-- ============================================================
+create table recipe_likes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references profiles(id) on delete cascade,
+  recipe_id uuid not null references recipes(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique (user_id, recipe_id)
+);
+
+alter table recipe_likes enable row level security;
 
 -- ============================================================
 -- ROW LEVEL SECURITY POLICIES
@@ -262,52 +286,6 @@ create policy "Household members can manage shopping list"
     )
   );
 
--- ============================================================
--- RECIPE PAIRINGS (self-join many-to-many)
--- ============================================================
-create table recipe_pairings (
-  id uuid primary key default gen_random_uuid(),
-  recipe_id uuid not null references recipes(id) on delete cascade,
-  paired_recipe_id uuid not null references recipes(id) on delete cascade,
-  created_at timestamptz default now(),
-  unique (recipe_id, paired_recipe_id)
-);
-
-alter table recipe_pairings enable row level security;
-
-create policy "Household members can manage recipe pairings"
-  on recipe_pairings for all using (
-    recipe_id in (
-      select id from recipes where household_id in (
-        select household_id from profiles where id = auth.uid()
-      )
-    )
-  );
-
--- ============================================================
--- SOCIAL: Profile extensions
--- ============================================================
-alter table profiles add column if not exists avatar_url text;
-alter table profiles add column if not exists is_public boolean default false;
-
--- ============================================================
--- SOCIAL: Recipe Likes
--- ============================================================
-create table recipe_likes (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references profiles(id) on delete cascade,
-  recipe_id uuid not null references recipes(id) on delete cascade,
-  created_at timestamptz default now(),
-  unique (user_id, recipe_id)
-);
-
-alter table recipe_likes enable row level security;
-
-create policy "Users can manage own likes"
-  on recipe_likes for all using (user_id = auth.uid());
-
-create policy "Anyone can view likes"
-  on recipe_likes for select using (true);
 
 -- ============================================================
 -- SOCIAL: Make public recipes viewable
@@ -324,6 +302,46 @@ create policy "View public recipes"
 create policy "View public profiles"
   on profiles for select using (is_public = true);
 
--- Categories: public read
-create policy "Anyone can view categories"
-  on categories for select using (true);
+-- Recipe pairings
+create policy "Household members can manage recipe pairings"
+  on recipe_pairings for all using (
+    recipe_id in (
+      select id from recipes where household_id in (
+        select household_id from profiles where id = auth.uid()
+      )
+    )
+  );
+
+-- Recipe likes
+create policy "Users can manage own likes"
+  on recipe_likes for all using (user_id = auth.uid());
+
+create policy "Anyone can view likes"
+  on recipe_likes for select using (true);
+
+-- Categories: view global + own household tags
+create policy "View global and household categories"
+  on categories for select using (
+    household_id is null
+    or household_id in (select household_id from profiles where id = auth.uid())
+  );
+
+create policy "Insert household categories"
+  on categories for insert with check (
+    household_id in (select household_id from profiles where id = auth.uid())
+  );
+
+create policy "Delete household categories"
+  on categories for delete using (
+    household_id is not null
+    and household_id in (select household_id from profiles where id = auth.uid())
+  );
+
+-- Public profiles & recipes
+create policy "View public profiles"
+  on profiles for select using (is_public = true);
+
+create policy "View public recipes"
+  on recipes for select using (
+    created_by in (select id from profiles where is_public = true)
+  );
