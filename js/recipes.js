@@ -361,10 +361,12 @@ const RecipeModal = {
     addBtn.style.display = showAdd ? '' : 'none';
 
     document.getElementById('recipe-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
   },
 
   close() {
     document.getElementById('recipe-modal').classList.remove('show');
+    document.body.style.overflow = '';
     this.currentRecipe = null;
   },
 
@@ -763,10 +765,12 @@ const TagEditor = {
     await Recipes.loadCategories();
     this.render();
     document.getElementById('tag-editor-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
   },
 
   close() {
     document.getElementById('tag-editor-modal').classList.remove('show');
+    document.body.style.overflow = '';
     // Refresh category filters
     Recipes.categories = [];
     if (App.currentPage === 'plan') {
