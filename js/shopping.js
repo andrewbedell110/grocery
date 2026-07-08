@@ -158,9 +158,15 @@ const Shopping = {
 
       App.showToast(`${productIds.length} items added! Opening Smith's...`, 'success');
 
-      // Delay 1s then open Smith's cart
+      // Open Smith's cart via link click (avoids popup blocker)
       setTimeout(() => {
-        window.open('https://www.smithsfoodanddrug.com/cart', '_blank');
+        const a = document.createElement('a');
+        a.href = 'https://www.smithsfoodanddrug.com/cart';
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
         this._cartDebounce = false;
         if (cartBtn) {
           cartBtn.classList.remove('animate-pulse-btn');

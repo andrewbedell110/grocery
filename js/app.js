@@ -237,8 +237,9 @@ const Meals = {
       if (!this.currentPlan) return;
       await sb.from('weekly_plan_recipes').delete().eq('plan_id', this.currentPlan.id);
       await sb.from('shopping_list_items').delete().eq('plan_id', this.currentPlan.id);
+      this.currentPlan = null;
       App.showToast('Week cleared!', 'success');
-      this.load();
+      await this.load();
     } catch (err) {
       App.showToast('Error: ' + err.message, 'error');
     }
