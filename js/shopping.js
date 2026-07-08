@@ -119,69 +119,9 @@ const Shopping = {
     return data.accessToken;
   },
 
-  _cartDebounce: false,
-
-  async confirmAddToCart(matches) {
-    if (this._cartDebounce) return;
-    this._cartDebounce = true;
-
-    const cartBtn = document.querySelector('[onclick*="confirmAddToCart"]') ||
-      document.querySelector('.btn-primary:last-child');
-
-    // Animate the button
-    if (cartBtn) {
-      cartBtn.classList.add('animate-pulse-btn');
-      cartBtn.textContent = 'Opening Smith\'s...';
-    }
-
-    try {
-      const krogerAccessToken = await this.getKrogerToken();
-
-      const productIds = matches
-        .filter(m => m.product_id)
-        .map(m => ({ productId: m.product_id, quantity: 1 }));
-
-      if (!productIds.length) {
-        App.showToast('No products to add', 'info');
-        this._cartDebounce = false;
-        return;
-      }
-
-      const res = await fetch('/api/kroger-cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: productIds, krogerAccessToken })
-      });
-
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      App.showToast(`${productIds.length} items added! Opening Smith's...`, 'success');
-
-      // Open Smith's cart via link click (avoids popup blocker)
-      setTimeout(() => {
-        const a = document.createElement('a');
-        a.href = 'https://www.smithsfoodanddrug.com/cart';
-        a.target = '_blank';
-        a.rel = 'noopener';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        this._cartDebounce = false;
-        if (cartBtn) {
-          cartBtn.classList.remove('animate-pulse-btn');
-          cartBtn.textContent = "Add All to Smith's Cart";
-        }
-      }, 1000);
-    } catch (err) {
-      this._cartDebounce = false;
-      if (cartBtn) {
-        cartBtn.classList.remove('animate-pulse-btn');
-        cartBtn.textContent = "Add All to Smith's Cart";
-      }
-      if (err.message !== 'Kroger account not connected') {
-        App.showToast('Error adding to cart: ' + err.message, 'error');
-      }
-    }
+  confirmAddToCart(matches) {
+    // Open Smith's cart immediately in the user gesture (before any async)
+    // This is the only way to avoid mobile popup blockers
+    window.location.href = 'https://www.smithsfoodanddrug.com/cart';
   }
 };
