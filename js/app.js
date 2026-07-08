@@ -354,7 +354,7 @@ const GroceryList = {
       container.innerHTML = `<div class="text-center py-16 text-on-surface-variant">
         <span class="material-symbols-outlined text-6xl opacity-30 mb-4 block">shopping_cart</span>
         <p class="text-base mb-4">No ingredients yet. Plan some meals first!</p>
-        <button class="bg-carrot-accent text-white font-semibold text-sm py-3 px-6 rounded-full shadow-lg active:scale-95 transition-transform" onclick="App.navigate('plan')">Start Planning</button>
+        <button class="btn-animate bg-carrot-accent text-white font-semibold text-sm py-3 px-6 rounded-full shadow-lg active:scale-95 transition-transform" onclick="triggerSweep(this); App.navigate('plan')">Start Planning</button>
       </div>`;
       return;
     }

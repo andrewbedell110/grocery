@@ -115,10 +115,10 @@
     <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
       <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
       <div class="flex items-center gap-1">
-        <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+        <button class="btn-animate text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="triggerSweep(this); App.navigate('settings')">
           <span class="material-symbols-outlined">settings</span>
         </button>
-        <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+        <button class="btn-animate text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="triggerSweep(this); App.navigate('settings')">
           <span class="material-symbols-outlined">account_circle</span>
         </button>
       </div>
@@ -139,7 +139,7 @@
         <div class="empty-state md:col-span-12 text-center py-16 text-on-surface-variant" id="meals-empty">
           <span class="material-symbols-outlined text-6xl opacity-30 mb-4 block">restaurant</span>
           <p class="text-base mb-4">No meals planned yet this week.</p>
-          <button class="bg-carrot-accent text-white font-semibold text-sm py-3 px-6 rounded-full shadow-lg active:scale-95 transition-transform" onclick="App.navigate('plan')">Start Planning</button>
+          <button class="btn-animate bg-carrot-accent text-white font-semibold text-sm py-3 px-6 rounded-full shadow-lg active:scale-95 transition-transform" onclick="triggerSweep(this); App.navigate('plan')">Start Planning</button>
         </div>
       </div>
     </main>
@@ -496,7 +496,7 @@
                   <p class="text-sm text-on-surface-variant">Find the best prices</p>
                 </div>
               </div>
-              <button class="px-4 py-2 bg-carrot-accent text-white font-semibold text-xs rounded-full active:scale-95 transition-transform" id="btn-kroger-cart" onclick="Shopping.addToKrogerCart()">Search</button>
+              <button class="btn-animate px-4 py-2 bg-carrot-accent text-white font-semibold text-xs rounded-full active:scale-95 transition-transform" id="btn-kroger-cart" onclick="triggerSweep(this); Shopping.addToKrogerCart()">Search</button>
             </div>
             <div id="kroger-status" class="hidden text-center py-4">
               <span class="material-symbols-outlined animate-spin text-primary text-3xl">progress_activity</span>
@@ -671,7 +671,7 @@
             <p class="text-xs text-on-surface-variant" id="kroger-status-text">Not connected</p>
           </div>
         </div>
-        <button class="w-full py-3 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform flex items-center justify-center gap-2" id="kroger-connect-btn" onclick="Settings.connectKroger()">
+        <button class="btn-animate w-full py-3 bg-primary text-white font-semibold text-sm rounded-full active:scale-95 transition-transform flex items-center justify-center gap-2" id="kroger-connect-btn" onclick="triggerSweep(this); Settings.connectKroger()">
           <span class="material-symbols-outlined text-lg">link</span>
           <span id="kroger-connect-label">Connect Smith's Account</span>
         </button>
@@ -829,6 +829,14 @@
 <script src="/js/social.js"></script>
 <script src="/js/app.js"></script>
 <script>
+  // Sweep animation trigger
+  function triggerSweep(btn) {
+    btn.classList.remove('animate-sweep');
+    void btn.offsetWidth;
+    btn.classList.add('animate-sweep');
+    setTimeout(() => btn.classList.remove('animate-sweep'), 600);
+  }
+
   // Auth tab toggle
   function switchAuthTab(type) {
     const loginTab = document.getElementById('loginTab');

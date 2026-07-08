@@ -71,9 +71,9 @@ const Shopping = {
       // Add to cart button
       if (data.matches?.length) {
         const cartBtn = document.createElement('button');
-        cartBtn.className = 'btn btn-primary mt-20';
+        cartBtn.className = 'btn-animate w-full py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full shadow-lg active:scale-95 transition-transform mt-4';
         cartBtn.textContent = 'Add All to Smith\'s Cart';
-        cartBtn.addEventListener('click', () => this.confirmAddToCart(data.matches));
+        cartBtn.addEventListener('click', () => { triggerSweep(cartBtn); this.confirmAddToCart(data.matches); });
         resultsEl.appendChild(cartBtn);
       }
 
