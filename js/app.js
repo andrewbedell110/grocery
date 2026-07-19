@@ -15,15 +15,35 @@ const App = {
   },
 
   async checkAuth() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Handle password recovery link
+    if (window.location.hash.includes('type=recovery') || params.get('type') === 'recovery') {
+      window.history.replaceState({}, '', '/');
+      this.navigate('login');
+      this.showNewPasswordForm();
+      return;
+    }
+
     const session = await Auth.getSession();
     if (session) {
+      await Auth.ensureHousehold();
       this.profile = await Auth.getProfile();
+      // Load subscription status in background
+      Subscription.load();
       // Handle Kroger OAuth redirect
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('kroger_connected') === 'true' || params.get('kroger_error')) {
+      if (params.get('subscription') === 'success') {
+        window.history.replaceState({}, '', '/');
+        this.navigate('settings');
+        this.showToast('Welcome to Premium!', 'success');
+      } else if (params.get('kroger_connected') === 'true' || params.get('kroger_error')) {
         this.navigate('settings');
       } else {
         this.navigate('meals');
+        // Show tutorial on first login
+        if (!localStorage.getItem('tutorial_completed')) {
+          setTimeout(() => Tutorial.start(), 500);
+        }
       }
     } else {
       this.navigate('login');
@@ -67,6 +87,7 @@ const App = {
       case 'grocery': GroceryList.load(); break;
       case 'social': Social.load(); break;
       case 'settings': Settings.load(); break;
+      case 'admin': Admin.load(); break;
     }
   },
 
@@ -77,6 +98,7 @@ const App = {
       const password = document.getElementById('login-password').value;
       try {
         await Auth.signIn(email, password);
+        await Auth.ensureHousehold();
         this.profile = await Auth.getProfile();
         this.navigate('meals');
       } catch (err) {
@@ -97,6 +119,66 @@ const App = {
         this.showToast(err.message, 'error');
       }
     });
+
+    document.getElementById('reset-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('reset-email').value;
+      try {
+        await Auth.resetPassword(email);
+        this.showToast('Reset link sent! Check your email.', 'success');
+        this.showLoginForm();
+      } catch (err) {
+        this.showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('new-password-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pw = document.getElementById('new-password').value;
+      const confirm = document.getElementById('new-password-confirm').value;
+      if (pw !== confirm) {
+        this.showToast('Passwords do not match', 'error');
+        return;
+      }
+      try {
+        await Auth.updatePassword(pw);
+        this.showToast('Password updated! Please sign in.', 'success');
+        this.showLoginForm();
+      } catch (err) {
+        this.showToast(err.message, 'error');
+      }
+    });
+  },
+
+  showUpgradePrompt(reason) {
+    const modal = document.getElementById('upgrade-modal');
+    if (reason) document.getElementById('upgrade-reason').textContent = reason;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  },
+
+  showResetPassword() {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('signup-form').classList.add('hidden');
+    document.getElementById('reset-form').classList.remove('hidden');
+    document.getElementById('new-password-form').classList.add('hidden');
+    document.getElementById('auth-tabs').classList.add('hidden');
+  },
+
+  showLoginForm() {
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('signup-form').classList.add('hidden');
+    document.getElementById('reset-form').classList.add('hidden');
+    document.getElementById('new-password-form').classList.add('hidden');
+    document.getElementById('auth-tabs').classList.remove('hidden');
+  },
+
+  showNewPasswordForm() {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('signup-form').classList.add('hidden');
+    document.getElementById('reset-form').classList.add('hidden');
+    document.getElementById('new-password-form').classList.remove('hidden');
+    document.getElementById('auth-tabs').classList.add('hidden');
   },
 
   showToast(message, type = 'info') {
@@ -579,6 +661,10 @@ const Settings = {
       profile.display_name || profile.email?.split('@')[0] || 'User';
     document.getElementById('settings-household').textContent =
       profile.households?.name || 'No household';
+    // Load subscription status
+    Subscription.load();
+    // Show admin link if admin
+    this._checkAdmin();
     // Avatar
     const avatarImg = document.getElementById('settings-avatar');
     const avatarPlaceholder = document.getElementById('settings-avatar-placeholder');
@@ -841,6 +927,367 @@ const Settings = {
     } catch (err) {
       App.showToast(err.message, 'error');
     }
+  },
+
+  async _checkAdmin() {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token, action: 'dashboard' })
+      });
+      if (res.ok) {
+        document.getElementById('admin-link')?.classList.remove('hidden');
+      }
+    } catch { /* not admin */ }
+  },
+
+  _feedbackType: 'bug',
+
+  setFeedbackType(type) {
+    this._feedbackType = type;
+    const bugBtn = document.getElementById('feedback-type-bug');
+    const featureBtn = document.getElementById('feedback-type-feature');
+    if (type === 'bug') {
+      bugBtn.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-primary text-white transition-all';
+      featureBtn.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-surface-container-high text-kale-deep transition-all';
+    } else {
+      featureBtn.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-primary text-white transition-all';
+      bugBtn.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-surface-container-high text-kale-deep transition-all';
+    }
+  },
+
+  async submitFeedback() {
+    const text = document.getElementById('feedback-text').value.trim();
+    if (!text) {
+      App.showToast('Please enter your feedback', 'info');
+      return;
+    }
+    try {
+      const sb = getSupabase();
+      const { error } = await sb.from('feedback').insert({
+        type: this._feedbackType,
+        message: text
+      });
+      if (error) throw error;
+      document.getElementById('feedback-text').value = '';
+      App.showToast('Thanks for your feedback!', 'success');
+    } catch (err) {
+      App.showToast('Failed to send: ' + err.message, 'error');
+    }
+  }
+};
+
+// ============================================================
+// Subscription - Freemium management
+// ============================================================
+const Subscription = {
+  status: null,
+
+  async load() {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+
+      const res = await fetch('/api/subscription-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token })
+      });
+      const data = await res.json();
+      if (data.error) return;
+
+      this.status = data;
+      this.renderSettings(data);
+    } catch { /* silent */ }
+  },
+
+  renderSettings(data) {
+    const planLabel = document.getElementById('sub-plan-label');
+    const statusText = document.getElementById('sub-status-text');
+    const icon = document.getElementById('sub-icon');
+    const upgradeBtn = document.getElementById('sub-upgrade-btn');
+    const usageBars = document.getElementById('sub-usage-bars');
+
+    if (data.plan === 'premium') {
+      planLabel.textContent = 'Premium Plan';
+      statusText.textContent = data.expiresAt ? `Active until ${new Date(data.expiresAt).toLocaleDateString()}` : 'Active subscription';
+      icon.textContent = 'workspace_premium';
+      icon.classList.add('text-carrot-accent');
+      upgradeBtn.classList.add('hidden');
+      usageBars.classList.add('hidden');
+    } else {
+      planLabel.textContent = 'Free Plan';
+      statusText.textContent = `${data.recipeCount}/20 recipes, ${data.aiQueriesUsed}/20 AI queries`;
+
+      // Recipe bar
+      const recipePct = Math.min((data.recipeCount / 20) * 100, 100);
+      document.getElementById('sub-recipe-count').textContent = `${data.recipeCount} / 20`;
+      document.getElementById('sub-recipe-bar').style.width = `${recipePct}%`;
+      if (recipePct >= 90) document.getElementById('sub-recipe-bar').classList.add('bg-red-500');
+
+      // AI bar
+      const aiPct = Math.min((data.aiQueriesUsed / 20) * 100, 100);
+      document.getElementById('sub-ai-count').textContent = `${data.aiQueriesUsed} / 20`;
+      document.getElementById('sub-ai-bar').style.width = `${aiPct}%`;
+      if (aiPct >= 90) document.getElementById('sub-ai-bar').classList.add('bg-red-500');
+
+      upgradeBtn.classList.remove('hidden');
+      usageBars.classList.remove('hidden');
+    }
+  },
+
+  canAddRecipe() {
+    if (!this.status || this.status.plan === 'premium') return true;
+    return this.status.recipeCount < 20;
+  },
+
+  async applyDiscount() {
+    const code = document.getElementById('discount-code-input').value.trim();
+    if (!code) return;
+    const statusEl = document.getElementById('discount-status');
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token, discountCode: code })
+      });
+      const data = await res.json();
+      if (data.error) {
+        statusEl.textContent = data.error;
+        statusEl.className = 'text-xs text-red-500';
+        statusEl.classList.remove('hidden');
+        return;
+      }
+      if (data.free) {
+        statusEl.textContent = data.message;
+        statusEl.className = 'text-xs text-primary font-semibold';
+        statusEl.classList.remove('hidden');
+        document.getElementById('upgrade-modal').classList.add('hidden');
+        App.showToast(data.message, 'success');
+        this.load();
+        return;
+      }
+      // Redirect to Stripe checkout
+      window.location.href = data.url;
+    } catch (err) {
+      statusEl.textContent = 'Error applying code';
+      statusEl.className = 'text-xs text-red-500';
+      statusEl.classList.remove('hidden');
+    }
+  },
+
+  async checkout() {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      const code = document.getElementById('discount-code-input').value.trim();
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token, discountCode: code || undefined })
+      });
+      const data = await res.json();
+      if (data.error) {
+        App.showToast(data.error, 'error');
+        return;
+      }
+      if (data.free) {
+        document.getElementById('upgrade-modal').classList.add('hidden');
+        App.showToast(data.message, 'success');
+        this.load();
+        return;
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      App.showToast('Payment error: ' + err.message, 'error');
+    }
+  }
+};
+
+// ============================================================
+// Tutorial - First-time onboarding
+// ============================================================
+const Tutorial = {
+  steps: [
+    { icon: 'restaurant_menu', title: 'Welcome to GRUNDOW!', desc: 'Let\'s take a quick tour of your new meal planning app.', page: null },
+    { icon: 'calendar_month', title: 'This Week', desc: 'See your planned meals for the week at a glance. Tap any day to see what\'s cooking.', page: 'meals' },
+    { icon: 'menu_book', title: 'My Recipes', desc: 'Store and organize all your recipes in one place. Add tags, scale servings, and pair recipes together.', page: 'myrecipes' },
+    { icon: 'auto_awesome', title: 'Plan with AI', desc: 'Let AI suggest recipes based on your mood, ingredients, or dietary needs. Import from photos or URLs too!', page: 'plan' },
+    { icon: 'shopping_cart', title: 'Grocery List', desc: 'Your shopping list is auto-generated from your meal plan. Connect Smith\'s to add items directly to your cart.', page: 'grocery' },
+    { icon: 'groups', title: 'Social', desc: 'Discover recipes from other users, like your favorites, and save them to your collection.', page: 'social' }
+  ],
+  currentStep: 0,
+
+  start() {
+    if (localStorage.getItem('tutorial_completed')) return;
+    this.currentStep = 0;
+    this.render();
+    document.getElementById('tutorial-overlay').classList.remove('hidden');
+  },
+
+  render() {
+    const step = this.steps[this.currentStep];
+    document.getElementById('tutorial-icon').textContent = step.icon;
+    document.getElementById('tutorial-title').textContent = step.title;
+    document.getElementById('tutorial-desc').textContent = step.desc;
+    document.getElementById('tutorial-step-label').textContent = `Step ${this.currentStep + 1} of ${this.steps.length}`;
+    document.getElementById('tutorial-next-btn').textContent = this.currentStep === this.steps.length - 1 ? 'Get Started!' : 'Next';
+
+    // Render dots
+    const dots = document.getElementById('tutorial-dots');
+    dots.innerHTML = this.steps.map((_, i) =>
+      `<div class="w-2 h-2 rounded-full ${i === this.currentStep ? 'bg-primary' : 'bg-kale-deep/20'} transition-colors"></div>`
+    ).join('');
+
+    // Navigate to the relevant page if specified
+    if (step.page) App.navigate(step.page);
+  },
+
+  next() {
+    this.currentStep++;
+    if (this.currentStep >= this.steps.length) {
+      this.complete();
+    } else {
+      this.render();
+    }
+  },
+
+  skip() {
+    this.complete();
+  },
+
+  complete() {
+    localStorage.setItem('tutorial_completed', 'true');
+    document.getElementById('tutorial-overlay').classList.add('hidden');
+    App.navigate('meals');
+  }
+};
+
+// ============================================================
+// Admin Dashboard
+// ============================================================
+const Admin = {
+  async load() {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token, action: 'dashboard' })
+      });
+      const data = await res.json();
+      if (data.error) return;
+
+      document.getElementById('admin-users').textContent = data.userCount;
+      document.getElementById('admin-premium').textContent = data.premiumCount;
+      document.getElementById('admin-recipes').textContent = data.recipeCount;
+
+      this.renderCodes(data.discountCodes);
+      this.renderFeedback(data.feedback);
+    } catch (err) {
+      App.showToast('Admin load error: ' + err.message, 'error');
+    }
+  },
+
+  renderCodes(codes) {
+    const list = document.getElementById('admin-codes-list');
+    if (!codes.length) { list.innerHTML = '<p class="text-sm text-on-surface-variant">No discount codes yet.</p>'; return; }
+    list.innerHTML = codes.map(c => `
+      <div class="flex items-center justify-between bg-white rounded-lg p-2 border border-kale-deep/5">
+        <div>
+          <span class="font-mono font-bold text-sm text-kale-deep">${escapeHtml(c.code)}</span>
+          <span class="text-xs text-on-surface-variant ml-2">${c.discount_percent}% off, ${c.duration_months}mo</span>
+          <span class="text-xs text-on-surface-variant ml-1">(${c.current_uses}${c.max_uses ? '/' + c.max_uses : ''} used)</span>
+        </div>
+        <button class="text-xs font-semibold px-2 py-1 rounded ${c.active ? 'text-red-500' : 'text-primary'}" onclick="Admin.toggleCode('${c.id}', ${!c.active})">
+          ${c.active ? 'Disable' : 'Enable'}
+        </button>
+      </div>
+    `).join('');
+  },
+
+  renderFeedback(items) {
+    const list = document.getElementById('admin-feedback-list');
+    if (!items.length) { list.innerHTML = '<p class="text-sm text-on-surface-variant">No feedback yet.</p>'; return; }
+    list.innerHTML = items.map(f => {
+      const statusColors = { new: 'bg-carrot-accent', reviewed: 'bg-primary', resolved: 'bg-kale-deep/40' };
+      return `
+        <div class="bg-white rounded-lg p-3 border border-kale-deep/5">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full text-white ${statusColors[f.status] || 'bg-gray-400'}">${f.status}</span>
+            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${f.type === 'bug' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}">${f.type}</span>
+            <span class="text-xs text-on-surface-variant">${f.profiles?.email || 'Unknown'}</span>
+            <span class="text-xs text-on-surface-variant ml-auto">${new Date(f.created_at).toLocaleDateString()}</span>
+          </div>
+          <p class="text-sm text-kale-deep">${escapeHtml(f.message)}</p>
+          <div class="flex gap-1 mt-2">
+            <button class="text-[10px] font-semibold px-2 py-1 rounded bg-herb-light text-primary" onclick="Admin.updateFeedback('${f.id}', 'reviewed')">Mark Reviewed</button>
+            <button class="text-[10px] font-semibold px-2 py-1 rounded bg-herb-light text-primary" onclick="Admin.updateFeedback('${f.id}', 'resolved')">Resolve</button>
+          </div>
+        </div>`;
+    }).join('');
+  },
+
+  async createCode() {
+    const code = document.getElementById('new-code-input').value.trim();
+    const months = parseInt(document.getElementById('new-code-months').value) || 1;
+    const maxUses = document.getElementById('new-code-uses').value ? parseInt(document.getElementById('new-code-uses').value) : null;
+    if (!code) { App.showToast('Enter a code', 'info'); return; }
+
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          supabaseToken: session.access_token,
+          action: 'create-discount',
+          data: { code, discountPercent: 100, durationMonths: months, maxUses }
+        })
+      });
+      document.getElementById('new-code-input').value = '';
+      App.showToast('Code created!', 'success');
+      this.load();
+    } catch (err) {
+      App.showToast(err.message, 'error');
+    }
+  },
+
+  async toggleCode(codeId, active) {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token, action: 'toggle-discount', data: { codeId, active } })
+      });
+      this.load();
+    } catch (err) { App.showToast(err.message, 'error'); }
+  },
+
+  async updateFeedback(feedbackId, status) {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabaseToken: session.access_token, action: 'update-feedback', data: { feedbackId, status } })
+      });
+      this.load();
+    } catch (err) { App.showToast(err.message, 'error'); }
   }
 };
 
