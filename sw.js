@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grocery-v4';
+const CACHE_NAME = 'grocery-v5';
 const ASSETS = [
   '/',
   '/index.html',
@@ -28,6 +28,7 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   if (e.request.url.includes('/api/')) return;
   e.respondWith(
     fetch(e.request)
