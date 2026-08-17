@@ -64,6 +64,12 @@ const Recipes = {
   },
 
   async saveRecipe({ title, instructions, image_url, servings, ingredients, categoryIds }) {
+    // Check recipe limit for free users
+    if (typeof Subscription !== 'undefined' && !Subscription.canAddRecipe()) {
+      App.showUpgradePrompt('You\'ve reached the 20-recipe limit on the free plan. Upgrade to add unlimited recipes!');
+      throw new Error('Recipe limit reached');
+    }
+
     const sb = getSupabase();
     const profile = await Auth.getProfile();
     if (!profile?.household_id) throw new Error('No household');

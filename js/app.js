@@ -205,17 +205,13 @@ const Meals = {
     const profile = App.profile || await Auth.getProfile();
     if (!profile?.household_id) return;
 
-    const now = new Date();
-    const sunday = new Date(now);
-    sunday.setDate(now.getDate() - now.getDay());
-    const weekStart = sunday.toISOString().split('T')[0];
-
     const { data: plan } = await sb
       .from('weekly_plans')
       .select('*, weekly_plan_recipes(*, recipes(*, recipe_categories(category_id, categories(name)), recipe_ingredients(*)))')
       .eq('household_id', profile.household_id)
-      .eq('week_start', weekStart)
-      .single();
+      .order('week_start', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     this.currentPlan = plan;
 
@@ -419,17 +415,13 @@ const GroceryList = {
     const profile = App.profile || await Auth.getProfile();
     if (!profile?.household_id) return;
 
-    const now = new Date();
-    const sunday = new Date(now);
-    sunday.setDate(now.getDate() - now.getDay());
-    const weekStart = sunday.toISOString().split('T')[0];
-
     const { data: plan } = await sb
       .from('weekly_plans')
       .select('*, weekly_plan_recipes(*, recipes(*, recipe_ingredients(*)))')
       .eq('household_id', profile.household_id)
-      .eq('week_start', weekStart)
-      .single();
+      .order('week_start', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     const container = document.getElementById('grocery-list-content');
 
@@ -644,6 +636,47 @@ const GroceryList = {
     App.showToast('Refreshing...', 'info');
     await this.load();
     App.showToast('Grocery list refreshed!', 'success');
+  },
+
+  exportList() {
+    if (!this.items.length) {
+      App.showToast('No items to export', 'error');
+      return;
+    }
+
+    const need = this.items.filter(i => !i.have);
+    const have = this.items.filter(i => i.have);
+
+    let text = 'Grocery List\n';
+    text += '============\n\n';
+
+    if (need.length) {
+      text += 'NEED:\n';
+      need.forEach(item => {
+        const qty = item.quantity ? `${formatQuantity(item.quantity)}${item.unit ? ' ' + item.unit : ''}` : '';
+        text += `- ${item.name}${qty ? ' (' + qty.trim() + ')' : ''}\n`;
+      });
+    }
+
+    if (have.length) {
+      if (need.length) text += '\n';
+      text += 'HAVE:\n';
+      have.forEach(item => {
+        const qty = item.quantity ? `${formatQuantity(item.quantity)}${item.unit ? ' ' + item.unit : ''}` : '';
+        text += `- ${item.name}${qty ? ' (' + qty.trim() + ')' : ''}\n`;
+      });
+    }
+
+    if (navigator.share) {
+      navigator.share({ title: 'Grocery List', text }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(
+        () => App.showToast('List copied to clipboard!', 'success'),
+        () => App.showToast('Could not copy list', 'error')
+      );
+    } else {
+      App.showToast('Sharing not supported on this device', 'error');
+    }
   }
 };
 

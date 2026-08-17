@@ -2,13 +2,56 @@
 // Fetches page content and uses AI to extract structured recipe
 
 import { findRecipeImage } from './_image-search.js';
+import { createClient } from '@supabase/supabase-js';
+
+function setCors(req, res) {
+  const allowed = ['https://grundow.vercel.app', 'capacitor://localhost', 'https://localhost', 'http://localhost'];
+  const origin = req.headers.origin;
+  if (allowed.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
+}
+
+async function checkAndTrackAiUsage(supabaseToken) {
+  if (!supabaseToken) return { allowed: true };
+  const supabaseUrl = process.env.SUPABASE_URL || 'https://ywgexbkyrmwoaijifrnp.supabase.co';
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return { allowed: true };
+  const supabase = createClient(supabaseUrl, serviceKey);
+  const { data: { user } } = await supabase.auth.getUser(supabaseToken);
+  if (!user) return { allowed: true };
+  const { data: sub } = await supabase.from('subscriptions').select('plan, expires_at').eq('user_id', user.id).single();
+  const isPremium = sub?.plan === 'premium' && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+  const month = new Date().toISOString().slice(0, 7);
+  const { data: usage } = await supabase.from('ai_usage').select('query_count').eq('user_id', user.id).eq('month', month).single();
+  const count = usage?.query_count || 0;
+  if (!isPremium && count >= 20) {
+    return { allowed: false, message: 'You\'ve used all 20 free AI queries this month. Upgrade to Premium for unlimited access!' };
+  }
+  if (usage) {
+    await supabase.from('ai_usage').update({ query_count: count + 1 }).eq('user_id', user.id).eq('month', month);
+  } else {
+    await supabase.from('ai_usage').insert({ user_id: user.id, month, query_count: 1 });
+  }
+  return { allowed: true };
+}
 
 export default async function handler(req, res) {
+  setCors(req, res);
+  if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { url } = req.body;
+  const { url, supabaseToken } = req.body;
+
+  const usageCheck = await checkAndTrackAiUsage(supabaseToken).catch(() => ({ allowed: true }));
+  if (!usageCheck.allowed) {
+    return res.status(403).json({ error: usageCheck.message, upgrade: true });
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
@@ -23,7 +66,7 @@ export default async function handler(req, res) {
     // Fetch the page content
     const pageRes = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; MealMap/1.0; recipe-import)',
+        'User-Agent': 'Mozilla/5.0 (compatible; GRUNDOW/1.0; recipe-import)',
         'Accept': 'text/html,application/xhtml+xml'
       },
       redirect: 'follow'

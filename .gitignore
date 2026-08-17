@@ -2,3 +2,7 @@
 node_modules/
 .env
 .env.local
+
+# Native app build artifacts
+native IOS and Google Play app/www/
+native IOS and Google Play app/node_modules/

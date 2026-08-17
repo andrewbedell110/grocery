@@ -9,6 +9,14 @@ const Plan = {
   shoppingList: [],      // filtered (items user doesn't have)
   _aiRecipes: [],        // stored AI recipe data (avoids HTML attribute escaping issues)
 
+  async _getToken() {
+    try {
+      const sb = getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      return session?.access_token || null;
+    } catch { return null; }
+  },
+
   formatInstructions(text) {
     if (!text) return '<p>No instructions provided.</p>';
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
@@ -124,12 +132,14 @@ const Plan = {
     result.innerHTML = '<div class="text-center py-8"><span class="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span><p class="text-sm text-on-surface-variant mt-3">Finding a trending recipe...</p></div>';
 
     try {
+      const token = await this._getToken();
       const res = await fetch('/api/ai-recipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'random' })
+        body: JSON.stringify({ type: 'random', supabaseToken: token })
       });
       const data = await res.json();
+      if (data.upgrade) { App.showUpgradePrompt(data.error); return; }
       if (data.error) throw new Error(data.error);
       this.renderAIRecipe(result, data);
     } catch (err) {
@@ -218,12 +228,14 @@ const Plan = {
     container.innerHTML = '<div class="text-center py-8"><span class="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span><p class="text-sm text-on-surface-variant mt-3">Searching for the perfect recipe...</p></div>';
 
     try {
+      const token = await this._getToken();
       const res = await fetch('/api/ai-recipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'questionnaire', answers })
+        body: JSON.stringify({ type: 'questionnaire', answers, supabaseToken: token })
       });
       const data = await res.json();
+      if (data.upgrade) { App.showUpgradePrompt(data.error); return; }
       if (data.error) throw new Error(data.error);
       this.renderAIRecipe(container, data);
     } catch (err) {
@@ -370,12 +382,14 @@ const Plan = {
     messages.scrollTop = messages.scrollHeight;
 
     try {
+      const token = await this._getToken();
       const res = await fetch('/api/ai-recipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'chat', message: q })
+        body: JSON.stringify({ type: 'chat', message: q, supabaseToken: token })
       });
       const data = await res.json();
+      if (data.upgrade) { App.showUpgradePrompt(data.error); return; }
       if (data.error) throw new Error(data.error);
 
       // Remove loading
@@ -468,12 +482,14 @@ const Plan = {
     resultEl.innerHTML = '';
 
     try {
+      const token = await this._getToken();
       const res = await fetch('/api/ai-recipe-from-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image: this._photoBase64,
-          mediaType: this._photoMediaType
+          mediaType: this._photoMediaType,
+          supabaseToken: token
         })
       });
       const data = await res.json();
@@ -510,12 +526,14 @@ const Plan = {
     resultEl.innerHTML = '';
 
     try {
+      const token = await this._getToken();
       const res = await fetch('/api/ai-recipe-from-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url, supabaseToken: token })
       });
       const data = await res.json();
+      if (data.upgrade) { App.showUpgradePrompt(data.error); btn.disabled = false; btn.textContent = 'Import Recipe'; return; }
       if (data.error) throw new Error(data.error);
 
       this.renderAIRecipe(resultEl, data);

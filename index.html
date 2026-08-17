@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="theme-color" content="#FDFCF0">
-  <title>MealMap</title>
+  <title>GRUNDOW</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="apple-touch-icon" href="/icons/icon.svg">
@@ -61,7 +61,7 @@
       <img class="w-full h-full object-cover image-mask" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB6NW9ssPgG2lYZlqbMwfcfHlRxqf6mK4j-lz_-uyfPxzjQJZx1clXC6HS2rpxGwvDsuG38hhkOAkvR5BTmKbfy5mAgsaefYG8MLxe5udk8GuharqpXLKATxsEaH7EKVER6yHVqhzMBY-kxqq3I8GMMy-DttB7D5sdb1JCcigLjpBmjV5EnxE8GLDw7IB2jUGfQkrh32Hv4kNVYfgRV9-u_QMX0u6-SCGDdU_Rb_MqTTzTsi6YxJ2jlj_ze0LA-A5sGUjE6L2hDGaC" alt="">
       <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-parchment-bg"></div>
       <div class="absolute bottom-12 left-0 right-0 text-center fade-in">
-        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       </div>
     </div>
     <main class="w-full max-w-md px-5 -mt-8 relative z-10 fade-in pb-8" style="animation-delay:0.2s;">
@@ -74,7 +74,7 @@
         <form id="login-form" class="space-y-4">
           <div class="space-y-1">
             <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Email Address</label>
-            <input type="email" id="login-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="chef@mealmap.com" required autocomplete="email">
+            <input type="email" id="login-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="chef@gmail.com" required autocomplete="email">
           </div>
           <div class="space-y-1">
             <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Password</label>
@@ -83,12 +83,40 @@
           <button type="submit" id="auth-submit-btn" class="w-full bg-carrot-accent text-white font-semibold text-sm py-4 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
             Sign In <span class="material-symbols-outlined text-lg">arrow_forward</span>
           </button>
+          <button type="button" class="w-full text-sm text-primary font-semibold py-2" onclick="App.showResetPassword()">Forgot Password?</button>
+        </form>
+        <!-- Password Reset Form (hidden by default) -->
+        <form id="reset-form" class="space-y-4 hidden">
+          <p class="text-sm text-on-surface-variant">Enter your email and we'll send you a link to reset your password.</p>
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Email Address</label>
+            <input type="email" id="reset-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="you@grundow.com" required autocomplete="email">
+          </div>
+          <button type="submit" class="w-full bg-carrot-accent text-white font-semibold text-sm py-4 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+            Send Reset Link <span class="material-symbols-outlined text-lg">mail</span>
+          </button>
+          <button type="button" class="w-full text-sm text-primary font-semibold py-2" onclick="App.showLoginForm()">Back to Sign In</button>
+        </form>
+        <!-- New Password Form (shown after clicking reset link) -->
+        <form id="new-password-form" class="space-y-4 hidden">
+          <p class="text-sm text-on-surface-variant">Enter your new password below.</p>
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">New Password</label>
+            <input type="password" id="new-password" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Confirm Password</label>
+            <input type="password" id="new-password-confirm" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="••••••••" required minlength="6">
+          </div>
+          <button type="submit" class="w-full bg-carrot-accent text-white font-semibold text-sm py-4 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+            Update Password <span class="material-symbols-outlined text-lg">lock_reset</span>
+          </button>
         </form>
         <!-- Signup Form (hidden by default) -->
         <form id="signup-form" class="space-y-4 hidden">
           <div class="space-y-1">
             <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Email Address</label>
-            <input type="email" id="signup-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="chef@mealmap.com" required autocomplete="email">
+            <input type="email" id="signup-email" class="w-full bg-cream-surface border border-kale-deep/10 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="user@yahoo.com" required autocomplete="email">
           </div>
           <div class="space-y-1">
             <label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase ml-1">Password</label>
@@ -113,7 +141,7 @@
   <!-- ====== THIS WEEK'S MEALS ====== -->
   <div id="page-meals" class="page min-h-screen">
     <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
-      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       <div class="flex items-center gap-1">
         <button class="btn-animate text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="triggerSweep(this); App.navigate('settings')">
           <span class="material-symbols-outlined">settings</span>
@@ -148,7 +176,7 @@
   <!-- ====== MY RECIPES ====== -->
   <div id="page-myrecipes" class="page min-h-screen">
     <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
-      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       <button class="w-10 h-10 bg-carrot-accent text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform" onclick="App.navigate('plan'); Plan.showManualOptions();">
         <span class="material-symbols-outlined">add</span>
       </button>
@@ -167,7 +195,7 @@
         <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('meals')">
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
-        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       </div>
       <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
         <span class="material-symbols-outlined">account_circle</span>
@@ -518,7 +546,7 @@
   <!-- ====== RECIPES (Browse All) ====== -->
   <div id="page-recipes" class="page min-h-screen">
     <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
-      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
         <span class="material-symbols-outlined">account_circle</span>
       </button>
@@ -538,7 +566,7 @@
   <!-- ====== GROCERY LIST ====== -->
   <div id="page-grocery" class="page min-h-screen">
     <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
-      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="GroceryList.refresh()" title="Refresh list">
         <span class="material-symbols-outlined">refresh</span>
       </button>
@@ -546,9 +574,14 @@
     <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full">
       <div class="flex justify-between items-center mb-4">
         <h2 class="font-display text-2xl font-semibold text-kale-deep">Grocery List</h2>
-        <button class="inline-flex items-center gap-1 bg-carrot-accent text-white px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition-transform" onclick="GroceryList.showAddItem()">
-          <span class="material-symbols-outlined text-sm">add</span> Add Item
-        </button>
+        <div class="flex gap-2">
+          <button class="inline-flex items-center gap-1 bg-herb-light text-primary px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition-transform" onclick="GroceryList.exportList()">
+            <span class="material-symbols-outlined text-sm">ios_share</span> Export
+          </button>
+          <button class="inline-flex items-center gap-1 bg-carrot-accent text-white px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition-transform" onclick="GroceryList.showAddItem()">
+            <span class="material-symbols-outlined text-sm">add</span> Add Item
+          </button>
+        </div>
       </div>
       <div id="grocery-add-item" class="hidden mb-4">
         <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
@@ -570,7 +603,7 @@
   <!-- ====== SOCIAL ====== -->
   <div id="page-social" class="page min-h-screen">
     <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
-      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+      <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
         <span class="material-symbols-outlined">account_circle</span>
       </button>
@@ -611,7 +644,7 @@
         <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('meals')">
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
-        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">MealMap</h1>
+        <h1 class="font-display text-4xl font-bold tracking-tight text-kale-deep">GRUNDOW</h1>
       </div>
     </header>
     <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full space-y-4">
@@ -646,6 +679,42 @@
           <button class="px-3 py-2 bg-surface-container-high text-kale-deep rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="Settings.cancelEditHouseholdName()">Cancel</button>
         </div>
       </div>
+      <!-- Subscription Status -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5" id="subscription-card">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-outline-variant/30 shadow-sm">
+            <span class="material-symbols-outlined text-primary text-xl" id="sub-icon">star</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-kale-deep" id="sub-plan-label">Free Plan</h3>
+            <p class="text-xs text-on-surface-variant" id="sub-status-text">Loading...</p>
+          </div>
+        </div>
+        <div class="space-y-2 mb-3" id="sub-usage-bars">
+          <div>
+            <div class="flex justify-between text-xs text-on-surface-variant mb-1">
+              <span>Recipes</span>
+              <span id="sub-recipe-count">0 / 20</span>
+            </div>
+            <div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+              <div class="h-full bg-primary rounded-full transition-all" id="sub-recipe-bar" style="width:0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-on-surface-variant mb-1">
+              <span>AI Queries (this month)</span>
+              <span id="sub-ai-count">0 / 20</span>
+            </div>
+            <div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+              <div class="h-full bg-carrot-accent rounded-full transition-all" id="sub-ai-bar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+        <button class="w-full py-2.5 bg-carrot-accent text-white font-semibold text-sm rounded-full active:scale-95 transition-transform" id="sub-upgrade-btn" onclick="App.showUpgradePrompt()">
+          <span class="material-symbols-outlined text-sm align-middle">workspace_premium</span> Upgrade to Premium
+        </button>
+      </div>
+
       <!-- Profile Visibility -->
       <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
         <div class="flex items-center justify-between">
@@ -690,7 +759,81 @@
         </div>
       </div>
 
+      <!-- Feedback -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-outline-variant/30 shadow-sm">
+            <span class="material-symbols-outlined text-primary text-xl">feedback</span>
+          </div>
+          <div>
+            <h3 class="font-semibold text-kale-deep">Send Feedback</h3>
+            <p class="text-xs text-on-surface-variant">Report a bug or request a feature</p>
+          </div>
+        </div>
+        <div id="feedback-form-wrap">
+          <div class="flex gap-2 mb-3">
+            <button class="flex-1 py-2 text-xs font-semibold rounded-lg bg-primary text-white transition-all" id="feedback-type-bug" onclick="Settings.setFeedbackType('bug')">Bug Report</button>
+            <button class="flex-1 py-2 text-xs font-semibold rounded-lg bg-surface-container-high text-kale-deep transition-all" id="feedback-type-feature" onclick="Settings.setFeedbackType('feature')">Feature Request</button>
+          </div>
+          <textarea id="feedback-text" rows="3" class="w-full bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors resize-none" placeholder="Tell us what happened or what you'd like to see..."></textarea>
+          <button class="btn-animate w-full mt-2 py-3 bg-carrot-accent text-white font-semibold text-sm rounded-full active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="triggerSweep(this); Settings.submitFeedback()">
+            <span class="material-symbols-outlined text-lg">send</span> Submit
+          </button>
+        </div>
+      </div>
+
       <button class="w-full py-3 border-2 border-carrot-accent text-carrot-accent font-semibold text-sm rounded-full active:scale-95 transition-transform" onclick="Auth.signOut()">Sign Out</button>
+      <!-- Admin link (only visible for admin) -->
+      <button class="w-full py-2 text-sm text-on-surface-variant font-semibold hidden" id="admin-link" onclick="App.navigate('admin')">
+        <span class="material-symbols-outlined text-sm align-middle">admin_panel_settings</span> Admin Dashboard
+      </button>
+    </main>
+  </div>
+
+  <!-- ====== ADMIN DASHBOARD ====== -->
+  <div id="page-admin" class="page min-h-screen">
+    <header class="bg-parchment-bg flex justify-between items-center px-4 w-full h-16 sticky top-0 z-40">
+      <div class="flex items-center gap-4">
+        <button class="text-primary p-2 rounded-full hover:bg-herb-light/20 active:scale-95 transition-all" onclick="App.navigate('settings')">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 class="font-display text-2xl font-bold tracking-tight text-kale-deep">Admin Dashboard</h1>
+      </div>
+    </header>
+    <main class="flex-1 px-5 pt-4 pb-32 max-w-2xl mx-auto w-full space-y-4">
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-cream-surface rounded-xl p-3 text-center border border-kale-deep/5">
+          <p class="font-display text-2xl font-bold text-kale-deep" id="admin-users">-</p>
+          <p class="text-xs text-on-surface-variant">Users</p>
+        </div>
+        <div class="bg-cream-surface rounded-xl p-3 text-center border border-kale-deep/5">
+          <p class="font-display text-2xl font-bold text-carrot-accent" id="admin-premium">-</p>
+          <p class="text-xs text-on-surface-variant">Premium</p>
+        </div>
+        <div class="bg-cream-surface rounded-xl p-3 text-center border border-kale-deep/5">
+          <p class="font-display text-2xl font-bold text-primary" id="admin-recipes">-</p>
+          <p class="text-xs text-on-surface-variant">Recipes</p>
+        </div>
+      </div>
+
+      <!-- Discount Codes -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <h3 class="font-semibold text-kale-deep mb-3">Discount Codes</h3>
+        <div class="flex gap-2 mb-3">
+          <input type="text" id="new-code-input" class="flex-1 bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm uppercase" placeholder="CODE">
+          <input type="number" id="new-code-months" class="w-16 bg-white border border-outline-variant rounded-lg px-2 py-2 text-sm" placeholder="Mo" value="1" min="1">
+          <input type="number" id="new-code-uses" class="w-16 bg-white border border-outline-variant rounded-lg px-2 py-2 text-sm" placeholder="Max">
+          <button class="px-3 py-2 bg-primary text-white rounded-lg text-sm font-semibold active:scale-95" onclick="Admin.createCode()">Add</button>
+        </div>
+        <div id="admin-codes-list" class="space-y-2"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="bg-cream-surface rounded-xl p-4 shadow-[0_4px_24px_rgba(45,106,79,0.06)] border border-kale-deep/5">
+        <h3 class="font-semibold text-kale-deep mb-3">User Feedback</h3>
+        <div id="admin-feedback-list" class="space-y-3"></div>
+      </div>
     </main>
   </div>
 
@@ -843,6 +986,10 @@
     const registerTab = document.getElementById('registerTab');
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
+    // Hide reset/new-password forms when switching tabs
+    document.getElementById('reset-form')?.classList.add('hidden');
+    document.getElementById('new-password-form')?.classList.add('hidden');
+    document.getElementById('auth-tabs')?.classList.remove('hidden');
     if (type === 'login') {
       loginTab.classList.add('bg-white', 'shadow-sm', 'text-primary');
       loginTab.classList.remove('text-on-surface-variant');
@@ -860,5 +1007,65 @@
     }
   }
 </script>
+
+<!-- Upgrade Prompt Modal -->
+<div id="upgrade-modal" class="modal-overlay fixed inset-0 bg-black/60 z-[250] items-end hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="modal-sheet bg-parchment-bg w-full max-h-[90vh] rounded-t-2xl p-6 pb-safe slide-up max-w-lg mx-auto">
+    <div class="text-center mb-4">
+      <div class="w-16 h-16 rounded-full bg-herb-light flex items-center justify-center mx-auto mb-3">
+        <span class="material-symbols-outlined text-primary text-3xl">workspace_premium</span>
+      </div>
+      <h2 class="font-display text-xl font-bold text-kale-deep">Upgrade to Premium</h2>
+      <p class="text-sm text-on-surface-variant mt-1" id="upgrade-reason">Unlock unlimited recipes and AI queries</p>
+    </div>
+    <div class="bg-cream-surface rounded-xl p-4 border border-kale-deep/5 mb-4">
+      <div class="flex items-baseline justify-center gap-1 mb-3">
+        <span class="font-display text-3xl font-bold text-kale-deep">$4</span>
+        <span class="text-sm text-on-surface-variant">/month</span>
+      </div>
+      <ul class="space-y-2 text-sm text-kale-deep">
+        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-lg">check_circle</span> Unlimited recipes</li>
+        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-lg">check_circle</span> Unlimited AI queries</li>
+        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-lg">check_circle</span> Priority support</li>
+      </ul>
+    </div>
+    <div class="space-y-2 mb-3">
+      <div class="flex gap-2">
+        <input type="text" id="discount-code-input" class="flex-1 bg-white border border-outline-variant rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors uppercase" placeholder="Discount code (optional)">
+        <button class="px-4 py-2 bg-herb-light text-primary rounded-lg text-sm font-semibold active:scale-95 transition-transform" onclick="Subscription.applyDiscount()">Apply</button>
+      </div>
+      <p id="discount-status" class="text-xs text-on-surface-variant hidden"></p>
+    </div>
+    <button class="w-full bg-carrot-accent text-white font-semibold text-sm py-4 rounded-full shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2" onclick="Subscription.checkout()">
+      <span class="material-symbols-outlined text-lg">lock_open</span> Upgrade Now
+    </button>
+    <button class="w-full text-sm text-on-surface-variant font-semibold py-3" onclick="document.getElementById('upgrade-modal').classList.add('hidden')">Maybe Later</button>
+  </div>
+</div>
+
+<!-- Tutorial Overlay -->
+<div id="tutorial-overlay" class="fixed inset-0 z-[300] hidden">
+  <div class="absolute inset-0 bg-black/70" id="tutorial-backdrop"></div>
+  <div class="absolute bottom-0 left-0 right-0 bg-parchment-bg rounded-t-2xl p-6 pb-safe slide-up max-w-lg mx-auto" id="tutorial-card">
+    <div class="flex items-center justify-between mb-1">
+      <span class="text-xs font-bold text-primary uppercase tracking-wider" id="tutorial-step-label">Step 1 of 5</span>
+      <button class="text-sm text-on-surface-variant font-semibold" onclick="Tutorial.skip()">Skip</button>
+    </div>
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 rounded-xl bg-herb-light flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary text-2xl" id="tutorial-icon">restaurant_menu</span>
+      </div>
+      <div>
+        <h3 class="font-display text-lg font-semibold text-kale-deep" id="tutorial-title">Welcome to GRUNDOW!</h3>
+        <p class="text-sm text-on-surface-variant" id="tutorial-desc">Let's take a quick tour of your new meal planning app.</p>
+      </div>
+    </div>
+    <!-- Progress dots -->
+    <div class="flex items-center justify-center gap-2 mb-4" id="tutorial-dots"></div>
+    <button class="w-full bg-carrot-accent text-white font-semibold text-sm py-3 rounded-full active:scale-95 transition-transform" onclick="Tutorial.next()" id="tutorial-next-btn">
+      Let's Go!
+    </button>
+  </div>
+</div>
 </body>
 </html>
