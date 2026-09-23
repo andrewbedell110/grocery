@@ -6,3 +6,4 @@ node_modules/
 # Native app build artifacts
 native IOS and Google Play app/www/
 native IOS and Google Play app/node_modules/
+.env*

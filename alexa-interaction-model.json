@@ -1,0 +1,135 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "grundow",
+      "intents": [
+        {
+          "name": "AddItemIntent",
+          "slots": [
+            {
+              "name": "item",
+              "type": "AMAZON.Food"
+            },
+            {
+              "name": "quantity",
+              "type": "AMAZON.NUMBER"
+            },
+            {
+              "name": "unit",
+              "type": "GROCERY_UNIT"
+            }
+          ],
+          "samples": [
+            "add {item}",
+            "add {item} to my list",
+            "add {item} to my grocery list",
+            "add {quantity} {item}",
+            "add {quantity} {unit} of {item}",
+            "add {quantity} {unit} {item}",
+            "put {item} on my list",
+            "put {item} on the list",
+            "I need {item}",
+            "I need {quantity} {item}",
+            "I need {quantity} {unit} of {item}",
+            "we need {item}",
+            "we need {quantity} {item}",
+            "remember to get {item}",
+            "don't forget {item}",
+            "pick up {item}",
+            "pick up {quantity} {item}",
+            "get {item}",
+            "get {quantity} {item}",
+            "get {quantity} {unit} of {item}",
+            "buy {item}",
+            "buy {quantity} {item}"
+          ]
+        },
+        {
+          "name": "RemoveItemIntent",
+          "slots": [
+            {
+              "name": "item",
+              "type": "AMAZON.Food"
+            }
+          ],
+          "samples": [
+            "remove {item}",
+            "remove {item} from my list",
+            "cross off {item}",
+            "take off {item}",
+            "take {item} off my list",
+            "I got {item}",
+            "I already have {item}",
+            "I have {item}",
+            "I picked up {item}",
+            "delete {item}",
+            "scratch {item}"
+          ]
+        },
+        {
+          "name": "ListItemsIntent",
+          "slots": [],
+          "samples": [
+            "what's on my list",
+            "what's on my grocery list",
+            "what do I need",
+            "what do we need",
+            "read my list",
+            "read my grocery list",
+            "tell me my list",
+            "what items do I have",
+            "what's left on my list",
+            "list my items",
+            "what am I getting"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+      ],
+      "types": [
+        {
+          "name": "GROCERY_UNIT",
+          "values": [
+            { "name": { "value": "pounds", "synonyms": ["pound", "lb", "lbs"] } },
+            { "name": { "value": "ounces", "synonyms": ["ounce", "oz"] } },
+            { "name": { "value": "cups", "synonyms": ["cup"] } },
+            { "name": { "value": "gallons", "synonyms": ["gallon", "gal"] } },
+            { "name": { "value": "liters", "synonyms": ["liter"] } },
+            { "name": { "value": "bags", "synonyms": ["bag"] } },
+            { "name": { "value": "boxes", "synonyms": ["box"] } },
+            { "name": { "value": "cans", "synonyms": ["can"] } },
+            { "name": { "value": "bottles", "synonyms": ["bottle"] } },
+            { "name": { "value": "bunches", "synonyms": ["bunch"] } },
+            { "name": { "value": "cartons", "synonyms": ["carton"] } },
+            { "name": { "value": "dozen", "synonyms": ["doz"] } },
+            { "name": { "value": "packs", "synonyms": ["pack", "package", "packages"] } },
+            { "name": { "value": "tablespoons", "synonyms": ["tablespoon", "tbsp"] } },
+            { "name": { "value": "teaspoons", "synonyms": ["teaspoon", "tsp"] } },
+            { "name": { "value": "quarts", "synonyms": ["quart", "qt"] } },
+            { "name": { "value": "pints", "synonyms": ["pint", "pt"] } },
+            { "name": { "value": "jars", "synonyms": ["jar"] } },
+            { "name": { "value": "sticks", "synonyms": ["stick"] } },
+            { "name": { "value": "heads", "synonyms": ["head"] } },
+            { "name": { "value": "slices", "synonyms": ["slice"] } },
+            { "name": { "value": "loaves", "synonyms": ["loaf"] } },
+            { "name": { "value": "rolls", "synonyms": ["roll"] } }
+          ]
+        }
+      ]
+    }
+  }
+}

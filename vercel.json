@@ -2,6 +2,7 @@
   "framework": null,
   "rewrites": [
     { "source": "/api/kroger-callback", "destination": "/api/kroger-auth" },
+    { "source": "/api/kroger-token", "destination": "/api/kroger-auth" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
